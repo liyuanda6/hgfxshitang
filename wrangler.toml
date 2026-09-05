@@ -1,0 +1,16 @@
+# 班级就餐统计系统 —— Cloudflare Pages + D1 配置
+# 部署： wrangler pages deploy public
+# 本地调试： wrangler pages dev public --d1=DB
+
+name = "class-meal-system"
+pages_build_output_dir = "./public"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]   # 让 lib/xlsx-export.js 的 Buffer 在 Workers 中可用
+
+# D1 数据库绑定（处理函数通过 context.env.DB 访问）
+[[d1_databases]]
+binding = "DB"
+database_name = "class-meal-db"
+# 执行 `wrangler d1 create class-meal-db` 后，把输出的 id 填到下面
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+migrations_dir = "migrations"

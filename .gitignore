@@ -1,0 +1,25 @@
+# 依赖（本项目零第三方依赖运行，node_modules 仅为本地 playwright 截图等开发用）
+node_modules/
+
+# 本地开发与测试产物（不要上传到服务器）
+.shots/
+*.log
+*.tmp
+
+# 早期一次性/调试脚本
+gen-xlsx.py
+shot-mobile.js
+test-smoke.js
+
+# 数据损坏备份（运行时自动产生）
+data/*.bak
+data/corrupted-*.json
+data/*.tmp
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Cloudflare 本地状态（wrangler pages dev 产生，不要上传）
+.wrangler/
+.dev.vars
