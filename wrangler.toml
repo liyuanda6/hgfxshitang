@@ -12,5 +12,5 @@ compatibility_flags = ["nodejs_compat"]   # 让 lib/xlsx-export.js 的 Buffer �
 binding = "DB"
 database_name = "class-meal-db"
 # 执行 `wrangler d1 create class-meal-db` 后，把输出的 id 填到下面
-database_id = "REPLACE_WITH_YOUR_D1_ID"
+database_id = "1940216c-0382-48d2-a9b7-46997c57ce60"
 migrations_dir = "migrations"
