@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>班级就餐统计系统</title>
+<link rel="stylesheet" href="/styles.css?v=2">
+</head>
+<body>
+
+<div class="app">
+  <!-- ============ 侧边栏 ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">餐</div>
+      <div class="brand-text">
+        <div class="brand-title">就餐统计系统</div>
+        <div class="brand-sub">班级 · 月度费用管理</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-page="register"><span class="ni">🍚</span><span data-short="登记">就餐登记</span></button>
+      <button class="nav-item" data-page="classes"><span class="ni">🏫</span><span data-short="班级">班级管理</span></button>
+      <button class="nav-item" data-page="students"><span class="ni">🧑‍🎓</span><span data-short="学生">学生管理</span></button>
+      <button class="nav-item" data-page="report"><span class="ni">📊</span><span data-short="统计">统计报表</span></button>
+      <button class="nav-item" data-page="settings"><span class="ni">⚙️</span><span data-short="设置">系统设置</span></button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="sf-row"><span>数据文件</span><b>data/data.json</b></div>
+      <div class="sf-row"><span>服务端口</span><b id="footPort">3000</b></div>
+      <div class="sf-tip">数据自动保存，建议定期备份 data 目录</div>
+    </div>
+  </aside>
+
+  <!-- ============ 主区域 ============ -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title" id="pageTitle">就餐登记</h1>
+        <p class="page-desc" id="pageDesc">按班级、按月登记学生用餐标准与备注，费用自动计算</p>
+      </div>
+      <div class="month-box" id="monthBox">
+        <label class="month-label">统计月份</label>
+        <input type="month" id="monthInput" class="month-input">
+        <div class="month-chips" id="monthChips"></div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ========== 就餐登记 ========== -->
+      <section class="page active" id="page-register">
+        <div class="card">
+          <div class="card-head">
+            <div class="head-left">
+              <label class="field-inline">
+                <span>班级</span>
+                <select id="regClass" class="select"></select>
+              </label>
+              <div class="meta-line" id="regMeta"></div>
+            </div>
+            <div class="head-right">
+              <button class="btn btn-ghost" id="btnReload">↻ 刷新</button>
+              <button class="btn btn-primary" id="btnExportClass">⬇ 导出本班餐费核对表</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="regTable">
+              <thead>
+                <tr>
+                  <th class="c-idx">序号</th>
+                  <th class="c-name">姓名</th>
+                  <th class="c-id">身份证号</th>
+                  <th class="c-days">本月应就餐天数</th>
+                  <th class="c-std">用餐标准</th>
+                  <th class="c-fee">每日餐费</th>
+                  <th class="c-remark">备注</th>
+                  <th class="c-deduct">应扣除费用</th>
+                  <th class="c-total">总费用</th>
+                  <th class="c-real">当月真实费用</th>
+                </tr>
+              </thead>
+              <tbody id="regBody"></tbody>
+              <tfoot id="regFoot"></tfoot>
+            </table>
+          </div>
+          <div class="empty" id="regEmpty" hidden></div>
+        </div>
+
+        <div class="hint-card">
+          <b>使用提示</b>
+          <ul>
+            <li>「用餐标准」「备注」「应扣除费用」支持行内直接修改，<b>鼠标移开即自动保存</b>。</li>
+            <li>「本月应就餐天数」由管理员在 <b>班级管理</b> 中设置（需管理密码），此处只读。</li>
+            <li>计算公式：总费用 = 应就餐天数 × 每日餐费；当月真实费用 = 总费用 − 应扣除费用（<b>不会为负数</b>）。</li>
+            <li>当月真实费用 ≤ 0 时会<span class="danger-text">标红提示</span>，请核对备注与扣除项。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ========== 班级管理 ========== -->
+      <section class="page" id="page-classes">
+        <div class="card">
+          <div class="card-head">
+            <div class="head-left">
+              <input id="newClassName" class="input" placeholder="输入新班级名称，如：一年级一班" maxlength="60">
+              <button class="btn btn-primary" id="btnAddClass">＋ 新增班级</button>
+            </div>
+            <div class="head-right">
+              <button class="btn btn-warn" id="btnBatchDays">🗓 批量设置本月应就餐天数</button>
+            </div>
+          </div>
+          <div class="card-sub" id="classMonthTip"></div>
+          <div class="table-wrap">
+            <table class="table" id="classTable">
+              <thead>
+                <tr>
+                  <th class="c-idx">序号</th>
+                  <th>班级名称</th>
+                  <th class="c-days">本月应就餐天数</th>
+                  <th class="c-num">学生人数</th>
+                  <th class="c-act">操作</th>
+                </tr>
+              </thead>
+              <tbody id="classBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="classEmpty" hidden>还没有班级，请在上方输入名称后点击「新增班级」。</div>
+        </div>
+
+        <div class="hint-card">
+          <b>说明</b>
+          <ul>
+            <li>应就餐天数按「班级 + 月份」分别保存，切换月份互不影响，历史月份可随时回看。</li>
+            <li><b>批量设置</b>：输入一个天数 → 弹出全部班级（默认全选，可取消勾选）→ 输入管理密码后应用到所选班级。</li>
+            <li>删除班级会<b>同时删除该班所有学生及其就餐记录</b>，需二次确认并验证管理密码。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ========== 学生管理 ========== -->
+      <section class="page" id="page-students">
+        <div class="card">
+          <div class="card-title">单个新增学生</div>
+          <div class="form-row">
+            <label class="field"><span>姓名</span><input id="stName" class="input" placeholder="学生姓名" maxlength="30"></label>
+            <label class="field"><span>身份证号</span><input id="stIdCard" class="input" placeholder="18 位身份证号" maxlength="18"></label>
+            <label class="field"><span>所属班级</span><select id="stClass" class="select"></select></label>
+            <button class="btn btn-primary" id="btnAddStudent">＋ 新增学生</button>
+          </div>
+          <div class="card-sub">新增学生默认用餐标准为「早餐+中餐」，可在就餐登记页调整。</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">批量导入学生</div>
+          <div class="form-row">
+            <label class="field"><span>导入到班级</span><select id="impClass" class="select"></select></label>
+            <button class="btn btn-ghost" id="btnPickFile">📁 选择 .csv / .txt 文件</button>
+            <input type="file" id="fileInput" accept=".csv,.txt,.tsv" hidden>
+            <span class="file-name" id="fileName">未选择文件</span>
+          </div>
+          <textarea id="impText" class="textarea" rows="7" placeholder="每行一名学生，格式为「姓名，身份证号」。
+分隔符支持：逗号、中文逗号、顿号、分号、空格、制表符。
+
+示例：
+张三，110101201501011234
+李四 110101201502022345
+王五	110101201503033456"></textarea>
+          <div class="form-row form-row-end">
+            <button class="btn btn-ghost" id="btnClearImport">清空</button>
+            <button class="btn btn-primary" id="btnImport">⬆ 开始导入</button>
+          </div>
+          <div class="card-sub">导入时将自动清洗首尾空格、字母统一大写、按身份证号<b>去重</b>，并校验 18 位格式与校验位。</div>
+          <div id="importResult" class="import-result" hidden></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="head-left">
+              <label class="field-inline"><span>筛选班级</span><select id="filterClass" class="select"></select></label>
+              <input id="searchInput" class="input input-sm" placeholder="搜索姓名或身份证号">
+            </div>
+            <div class="head-right"><span class="count-badge" id="stuCount"></span></div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="stuTable">
+              <thead>
+                <tr>
+                  <th class="c-idx">序号</th>
+                  <th class="c-name">姓名</th>
+                  <th class="c-id">身份证号</th>
+                  <th>所属班级</th>
+                  <th class="c-act">操作</th>
+                </tr>
+              </thead>
+              <tbody id="stuBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="stuEmpty" hidden>暂无学生，请先新增班级后添加或导入学生。</div>
+        </div>
+      </section>
+
+      <!-- ========== 统计报表 ========== -->
+      <section class="page" id="page-report">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="sc-label">班级数</div><div class="sc-value" id="sumClasses">0</div></div>
+          <div class="stat-card"><div class="sc-label">学生总数</div><div class="sc-value" id="sumStudents">0</div></div>
+          <div class="stat-card"><div class="sc-label">总费用合计</div><div class="sc-value" id="sumTotal">¥0.00</div></div>
+          <div class="stat-card"><div class="sc-label">应扣除合计</div><div class="sc-value sc-warn" id="sumDeduct">¥0.00</div></div>
+          <div class="stat-card stat-card-hl"><div class="sc-label">当月真实费用</div><div class="sc-value sc-main" id="sumReal">¥0.00</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title no-mb">各用餐标准人数</div>
+          </div>
+          <div class="std-grid" id="stdGrid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title no-mb">按班级明细</div>
+            <div class="head-right">
+              <button class="btn btn-primary" id="btnExportAll">⬇ 导出全校餐费核对表</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="repTable">
+              <thead>
+                <tr>
+                  <th class="c-idx">序号</th>
+                  <th>班级</th>
+                  <th class="c-days">应就餐天数</th>
+                  <th class="c-num">学生人数</th>
+                  <th class="c-num">早餐+中餐</th>
+                  <th class="c-num">仅早餐</th>
+                  <th class="c-num">仅中餐</th>
+                  <th class="c-total">总费用</th>
+                  <th class="c-deduct">应扣除</th>
+                  <th class="c-real">当月真实费用</th>
+                </tr>
+              </thead>
+              <tbody id="repBody"></tbody>
+              <tfoot id="repFoot"></tfoot>
+            </table>
+          </div>
+          <div class="empty" id="repEmpty" hidden>当前月份暂无数据。</div>
+        </div>
+      </section>
+
+      <!-- ========== 系统设置 ========== -->
+      <section class="page" id="page-settings">
+        <div class="card">
+          <div class="card-title">餐费标准（全局参数）</div>
+          <div class="form-row">
+            <label class="field"><span>早餐价（元 / 天）</span><input id="priceBreakfast" class="input" type="number" min="0" step="0.01"></label>
+            <label class="field"><span>午餐价（元 / 天）</span><input id="priceLunch" class="input" type="number" min="0" step="0.01"></label>
+            <label class="field"><span>全天合计（自动）</span><input id="priceAll" class="input" disabled></label>
+          </div>
+          <div class="form-row form-row-end">
+            <button class="btn btn-primary" id="btnSavePrice">💾 保存餐费设置（需密码）</button>
+          </div>
+          <div class="card-sub">修改后全校所有学生的每日餐费、总费用、真实费用将<b>立即重新计算</b>。</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">修改管理密码</div>
+          <div class="form-row">
+            <label class="field"><span>当前密码</span><input id="pwdOld" class="input" type="password" autocomplete="current-password"></label>
+            <label class="field"><span>新密码（至少 6 位）</span><input id="pwdNew" class="input" type="password" autocomplete="new-password"></label>
+            <label class="field"><span>确认新密码</span><input id="pwdNew2" class="input" type="password" autocomplete="new-password"></label>
+          </div>
+          <div class="form-row form-row-end">
+            <button class="btn btn-primary" id="btnSavePwd">🔑 修改密码</button>
+          </div>
+          <div class="card-sub">默认管理密码为 <code>admin</code>，部署后请立即修改。密码以哈希方式加密存储，不明文保存。</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">数据与备份</div>
+          <div class="form-row">
+            <button class="btn btn-ghost" id="btnBackup">⬇ 下载数据备份（JSON）</button>
+            <button class="btn btn-ghost" id="btnClearMonth">🧹 清空当前月份登记数据</button>
+          </div>
+          <div class="card-sub">
+            备份方式：直接复制服务目录下的 <code>data/data.json</code> 文件即可；服务每次写入前会自动生成 <code>data/data.json.bak</code>。
+            恢复时停止服务 → 用备份文件覆盖 <code>data.json</code> → 重新启动。
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">关于</div>
+          <div class="about">
+            <p><b>班级就餐统计系统</b> · 纯 Node.js 实现，零第三方依赖，数据存于本地 JSON 文件。</p>
+            <p>启动命令：<code>node server.js</code>　默认端口：<code>3000</code>（可用环境变量 <code>PORT</code> 修改）</p>
+            <p>忘记密码：停止服务，删除 <code>data/data.json</code> 后重启即可恢复为默认密码 <code>admin</code>（会清空全部数据，请先备份）。</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot" class="toast-root"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

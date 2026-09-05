@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "settings": {
+    "breakfastPrice": 6,
+    "lunchPrice": 11,
+    "salt": "5979b8251d15e478f6380682fec1a280",
+    "passwordHash": "3ee6ac72116c326aeda5bd87082c9098179aa38d2b510e22b971504e082eb6bf"
+  },
+  "classes": [
+    {
+      "id": "c_a01c14d39da4e419",
+      "name": "一年级1班",
+      "createdAt": 1788603842487
+    },
+    {
+      "id": "c_3a23c135ed0cac89",
+      "name": "一年级2班",
+      "createdAt": 1788603842662
+    },
+    {
+      "id": "c_e2988bb2251b3fe3",
+      "name": "一年级3班",
+      "createdAt": 1788603842838
+    },
+    {
+      "id": "c_d8be7c58e86fe42d",
+      "name": "一年级4班",
+      "createdAt": 1788603843014
+    },
+    {
+      "id": "c_05054d3b15e7f897",
+      "name": "一年级5班",
+      "createdAt": 1788603843189
+    },
+    {
+      "id": "c_c8fbec7650ed866e",
+      "name": "一年级6班",
+      "createdAt": 1788603843365
+    },
+    {
+      "id": "c_86fbdf79e765683f",
+      "name": "一年级7班",
+      "createdAt": 1788603843541
+    },
+    {
+      "id": "c_0d19cff7f95e9633",
+      "name": "二年级1班",
+      "createdAt": 1788603843716
+    },
+    {
+      "id": "c_cbf90058ffba4ddf",
+      "name": "二年级2班",
+      "createdAt": 1788603843891
+    },
+    {
+      "id": "c_5e4e06a31d13eb4e",
+      "name": "二年级3班",
+      "createdAt": 1788603844066
+    },
+    {
+      "id": "c_af4d678c50d43b5b",
+      "name": "二年级4班",
+      "createdAt": 1788603844241
+    },
+    {
+      "id": "c_c5a8908a283d88e2",
+      "name": "二年级5班",
+      "createdAt": 1788603844416
+    },
+    {
+      "id": "c_83ce95bb73f39a81",
+      "name": "二年级6班",
+      "createdAt": 1788603844592
+    },
+    {
+      "id": "c_84e505b087b704d1",
+      "name": "三年级1班",
+      "createdAt": 1788603844767
+    },
+    {
+      "id": "c_59463de51bcda58c",
+      "name": "三年级2班",
+      "createdAt": 1788603844942
+    },
+    {
+      "id": "c_7f9a52617c2c99a2",
+      "name": "三年级3班",
+      "createdAt": 1788603845117
+    },
+    {
+      "id": "c_79f574dbc841cb71",
+      "name": "三年级4班",
+      "createdAt": 1788603845293
+    },
+    {
+      "id": "c_53d677eae4aa4336",
+      "name": "三年级5班",
+      "createdAt": 1788603845468
+    },
+    {
+      "id": "c_57f2ac09e01fa5a1",
+      "name": "四年级1班",
+      "createdAt": 1788603845643
+    },
+    {
+      "id": "c_7d065c00e0762e4a",
+      "name": "四年级2班",
+      "createdAt": 1788603845819
+    },
+    {
+      "id": "c_9300c2fa781447db",
+      "name": "四年级3班",
+      "createdAt": 1788603845995
+    },
+    {
+      "id": "c_25e33f5eecfd2e76",
+      "name": "五年级1班",
+      "createdAt": 1788603846170
+    },
+    {
+      "id": "c_cea6c950e4ced338",
+      "name": "五年级2班",
+      "createdAt": 1788603846345
+    },
+    {
+      "id": "c_5802295a99cd7680",
+      "name": "五年级3班",
+      "createdAt": 1788603846520
+    },
+    {
+      "id": "c_856f2c378361dcf7",
+      "name": "六年级1班",
+      "createdAt": 1788603846696
+    },
+    {
+      "id": "c_312fdb2c2f521596",
+      "name": "六年级2班",
+      "createdAt": 1788603846871
+    },
+    {
+      "id": "c_d5041ead767f5eaa",
+      "name": "六年级3班",
+      "createdAt": 1788603847047
+    }
+  ],
+  "students": [],
+  "days": {},
+  "records": {}
+}

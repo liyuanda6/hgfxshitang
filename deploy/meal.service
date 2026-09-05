@@ -1,0 +1,38 @@
+[Unit]
+Description=班级就餐统计系统 (Class Meal Statistics)
+Documentation=file:///opt/class-meal-system/DEPLOY.md
+After=network.target
+
+[Service]
+# 常驻进程，崩溃自动重启
+Type=simple
+
+# 运行身份：建议新建专用用户（如 meal），并让其对 /opt/class-meal-system/data 有写权限
+#   useradd -r -s /usr/sbin/nologin -d /opt/class-meal-system meal
+#   chown -R meal:meal /opt/class-meal-system
+User=meal
+Group=meal
+
+WorkingDirectory=/opt/class-meal-system
+ExecStart=/usr/bin/node /opt/class-meal-system/server.js
+
+# 环境变量：监听本机，由前置 Nginx 反代对外（更安全）
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=NODE_ENV=production
+# 如需自定义数据目录（如挂载独立云盘）：
+# Environment=DATA_DIR=/var/lib/meal-data
+
+# 优雅关闭：收到 SIGTERM 会落地数据后退出（server.js 已处理）
+Restart=on-failure
+RestartSec=3
+# 内存/句柄保护（可选）
+# MemoryMax=256M
+
+# 日志统一交给 journald，查看：journalctl -u meal -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=meal
+
+[Install]
+WantedBy=multi-user.target
