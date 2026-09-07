@@ -210,7 +210,7 @@ function confirmDialog(title, message, okText) {
     title: title,
     icon: '⚠️ ',
     danger: true,
-    okText: okText || '确认删除',
+    okText: okText || '确认',
     body: '<div>' + message + '</div>',
     onOk: async () => true
   });
@@ -388,11 +388,16 @@ function renderRegister() {
 async function onPickClass(cid) {
   const cls = S.classes.find((c) => c.id === cid);
   if (!cls) return;
-  const ok = await confirmDialog(
-    '进入班级登记',
-    '<p>是否进入 <b>' + escapeHtml(cls.name) + '</b> 的餐费登记页面？</p>' +
-    '<p style="color:#5b6577;font-size:13px">当前统计月份：<b>' + (S.settings.statMonth || MONTH) + '</b></p>'
-  );
+  const ok = await openModal({
+    title: '进入班级登记',
+    icon: '🍚 ',
+    danger: false,
+    okText: '是',
+    cancelText: '取消',
+    body:
+      '<p>是否进入 <b>' + escapeHtml(cls.name) + '</b> 的餐费登记页面？</p>' +
+      '<p style="color:#5b6577;font-size:13px">当前统计月份：<b>' + (S.settings.statMonth || MONTH) + '</b></p>'
+  });
   if (!ok) return;
   currentClassId = cid;
   renderRegister();
@@ -601,7 +606,8 @@ async function onDeleteClass(cid) {
     '删除班级',
     '<p>确定要删除班级 <b>' + escapeHtml(cls.name) + '</b> 吗？</p>' +
     '<p style="color:#dc2626"><b>该班级下的 ' + cnt + ' 名学生及其全部就餐记录将一并被删除，且无法恢复！</b></p>' +
-    '<p style="color:#5b6577">建议先到「系统设置」下载数据备份。</p>'
+    '<p style="color:#5b6577">建议先到「系统设置」下载数据备份。</p>',
+    '确认删除'
   );
   if (!ok) return;
   const done = await protectedAction({
@@ -713,7 +719,7 @@ async function onEditStudent(sid) {
 async function onDeleteStudent(sid) {
   const st = S.students.find((s) => s.id === sid);
   if (!st) return;
-  const ok = await confirmDialog('删除学生', '<p>确定要删除学生 <b>' + escapeHtml(st.name) + '</b>（' + escapeHtml(st.idCard) + '）吗？</p><p style="color:#dc2626">该生的就餐记录将一并删除。</p>');
+  const ok = await confirmDialog('删除学生', '<p>确定要删除学生 <b>' + escapeHtml(st.name) + '</b>（' + escapeHtml(st.idCard) + '）吗？</p><p style="color:#dc2626">该生的就餐记录将一并删除。</p>', '确认删除');
   if (!ok) return;
   try {
     await api('/api/students/delete', { id: sid });
