@@ -628,6 +628,28 @@ async function onDeleteClass(cid) {
 
 /* ============================ 学生管理 ============================ */
 
+/* 身份证核验状态（实时计算，不落库）：empty=未填 / pending=填写但校验不过 / ok=通过 */
+const ID_WEIGHTS = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+const ID_CHECK = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+function idStatusOf(idCard) {
+  const id = String(idCard == null ? '' : idCard).trim().toUpperCase();
+  if (!id) return 'empty';
+  if (!/^\d{17}[\dX]$/.test(id)) return 'pending';
+  const y = +id.slice(6, 10), mo = +id.slice(10, 12), d = +id.slice(12, 14);
+  const dt = new Date(y, mo - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return 'pending';
+  let sum = 0;
+  for (let i = 0; i < 17; i++) sum += ID_WEIGHTS[i] * Number(id.charAt(i));
+  return ID_CHECK[sum % 11] === id.charAt(17) ? 'ok' : 'pending';
+}
+
+function idBadgeHtml(idCard) {
+  const st = idStatusOf(idCard);
+  if (st === 'ok') return '<span class="id-badge ok">已确认</span>';
+  if (st === 'pending') return '<span class="id-badge pending">待确认</span>';
+  return '<span class="id-badge empty">未填</span>';
+}
+
 function renderStudents() {
   const body = $('#stuBody');
   const emptyBox = $('#stuEmpty');
@@ -655,7 +677,7 @@ function renderStudents() {
       '<tr data-sid="' + st.id + '">' +
       '<td class="c-idx">' + (i + 1) + '</td>' +
       '<td class="c-name" data-label="姓名">' + escapeHtml(st.name) + '</td>' +
-      '<td class="c-id" data-label="身份证号">' + spanVal(escapeHtml(st.idCard)) + '</td>' +
+      '<td class="c-id" data-label="身份证号">' + spanVal(escapeHtml(st.idCard || '—')) + idBadgeHtml(st.idCard) + '</td>' +
       '<td data-label="班级">' + spanVal(escapeHtml(cls ? cls.name : '（班级已删除）')) + '</td>' +
       '<td class="c-act" data-label="操作"><button class="btn-link" data-act="edit">编辑</button>' +
       '<button class="btn-link danger" data-act="del">删除</button></td>' +
@@ -678,7 +700,7 @@ async function onAddStudent() {
   const classId = $('#stClass').value;
   if (!classId) { toast('请先创建班级', 'warn'); return; }
   if (!name) { toast('请输入学生姓名', 'warn'); $('#stName').focus(); return; }
-  if (!idCard) { toast('请输入身份证号', 'warn'); $('#stIdCard').focus(); return; }
+  // 身份证号可留空：留空或校验不过都照常保存，标记为「待确认」，可后期在编辑中修改
   try {
     const res = await api('/api/students/add', { name: name, idCard: idCard, classId: classId });
     S.students.push(res.student);
@@ -686,7 +708,10 @@ async function onAddStudent() {
     $('#stIdCard').value = '';
     await refresh();
     $('#stName').focus();
-    toast('学生「' + res.student.name + '」已添加', 'ok');
+    const stt = idStatusOf(res.student.idCard);
+    if (stt === 'pending') toast('学生「' + res.student.name + '」已添加（身份证号待确认，请核对）', 'warn');
+    else if (stt === 'empty') toast('学生「' + res.student.name + '」已添加（身份证号未填，可稍后补充）', 'ok');
+    else toast('学生「' + res.student.name + '」已添加', 'ok');
   } catch (e) {
     toast(e.message, 'err');
   }
@@ -769,12 +794,21 @@ function renderImportResult(res) {
   let cls = 'ir-ok';
   if (res.errors && res.errors.length) cls = 'ir-warn';
   if (!res.added && (!res.duplicate || res.errors.length)) cls = 'ir-err';
-  let html = '<div class="ir-title">导入完成：成功 ' + res.added + ' 人，跳过重复 ' + res.duplicate + ' 人，无效 ' + res.errors.length + ' 行（空行 ' + res.blank + ' 行）</div>';
+  let html = '<div class="ir-title">导入完成：成功 ' + res.added + ' 人，跳过重复 ' + res.duplicate + ' 人' +
+    (res.pending ? '，身份证待确认 ' + res.pending + ' 人' : '') +
+    (res.emptyId ? '，未填身份证 ' + res.emptyId + ' 人' : '') +
+    '（空行 ' + res.blank + ' 行）</div>';
   if (res.errors && res.errors.length) {
-    html += '<div>以下行未导入，请检查后重新粘贴：</div><div class="err-list">' +
+    html += '<div>以下行缺少姓名，未导入，请检查后重新粘贴：</div><div class="err-list">' +
       res.errors.slice(0, 50).map((e) => '第 ' + e.line + ' 行「' + escapeHtml(e.text) + '」—— ' + escapeHtml(e.msg)).join('<br>') +
       (res.errors.length > 50 ? '<br>… 其余 ' + (res.errors.length - 50) + ' 行省略' : '') + '</div>';
-  } else {
+  }
+  if (res.warnings && res.warnings.length) {
+    html += '<div style="margin-top:6px">以下 ' + res.warnings.length + ' 行身份证号校验未通过，已标记为「待确认」，可在学生管理中修改：</div><div class="warn-list">' +
+      res.warnings.slice(0, 50).map((e) => '第 ' + e.line + ' 行「' + escapeHtml(e.text) + '」—— ' + escapeHtml(e.msg)).join('<br>') +
+      (res.warnings.length > 50 ? '<br>… 其余 ' + (res.warnings.length - 50) + ' 行省略' : '') + '</div>';
+  }
+  if ((!res.errors || !res.errors.length) && (!res.warnings || !res.warnings.length)) {
     html += '<div>全部数据校验通过，默认用餐标准为「早餐+中餐」。</div>';
   }
   box.className = 'import-result ' + cls;

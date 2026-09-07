@@ -125,6 +125,16 @@ export function validateIdCard(raw) {
   return { ok: true, value: id };
 }
 
+/** 宽松身份证校验：用于"可留空 / 校验不过先存后改"场景。
+ *  返回 { value, empty, valid, status }：empty=未填 / pending=填写但校验不过 / ok=通过。 */
+export function checkIdCard(raw) {
+  const id = String(raw == null ? '' : raw).trim().toUpperCase();
+  if (!id) return { value: '', empty: true, valid: false, status: 'empty' };
+  const v = validateIdCard(id);
+  if (v.ok) return { value: v.value, empty: false, valid: true, status: 'ok' };
+  return { value: id, empty: false, valid: false, status: 'pending' };
+}
+
 /* ----------------------- 班级名解析（中文数字） ----------------------- */
 
 export function cn2intCN(s) {

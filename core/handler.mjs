@@ -5,7 +5,7 @@
 import { renderMealWorkbook } from '../lib/xlsx-export.js';
 import {
   MEAL_STANDARDS, STANDARD_KEYS, DEFAULT_STANDARD, money, standardLabel,
-  dailyFeeOf, daysKey, getDays, getRecord, buildRow, validateIdCard,
+  dailyFeeOf, daysKey, getDays, getRecord, buildRow, validateIdCard, checkIdCard,
   parseClassName, buildMealSheets, listMonths, currentMonth, isValidMonth
 } from './fees.mjs';
 import { hashPassword, newSalt, newId } from './password.mjs';
@@ -226,9 +226,8 @@ async function hDaysSet(body, env, state) {
 async function hStudentsAdd(body, env, state) {
   const name = requireString(body.name, '姓名', 30);
   findClass(state, body.classId);
-  const chk = validateIdCard(body.idCard);
-  if (!chk.ok) throw new ApiError(400, '【' + name + '】' + chk.msg);
-  if (state.students.some((s) => s.idCard === chk.value)) throw new ApiError(400, '身份证号「' + chk.value + '」已存在，不能重复添加');
+  const chk = checkIdCard(body.idCard);
+  if (chk.value && state.students.some((s) => s.idCard === chk.value)) throw new ApiError(400, '身份证号「' + chk.value + '」已存在，不能重复添加');
   const st = { id: newId('s'), name: name, idCard: chk.value, classId: body.classId, createdAt: Date.now() };
   await upsertStudent(env, st);
   state.students.push(st);
@@ -239,9 +238,8 @@ async function hStudentsUpdate(body, env, state) {
   const st = findStudent(state, body.id);
   const name = requireString(body.name, '姓名', 30);
   findClass(state, body.classId);
-  const chk = validateIdCard(body.idCard);
-  if (!chk.ok) throw new ApiError(400, '【' + name + '】' + chk.msg);
-  if (state.students.some((s) => s.idCard === chk.value && s.id !== st.id)) throw new ApiError(400, '身份证号「' + chk.value + '」已被其他学生使用');
+  const chk = checkIdCard(body.idCard);
+  if (chk.value && state.students.some((s) => s.idCard === chk.value && s.id !== st.id)) throw new ApiError(400, '身份证号「' + chk.value + '」已被其他学生使用');
   st.name = name; st.idCard = chk.value; st.classId = body.classId;
   await upsertStudent(env, st);
   return { ok: true, student: st };
@@ -262,33 +260,34 @@ async function hStudentsImport(body, env, state) {
   findClass(state, body.classId);
   const text = String(body.text == null ? '' : body.text);
   const lines = text.split(/\r\n|\r|\n/);
-  const existing = new Set(state.students.map((s) => s.idCard));
+  const existing = new Set(state.students.map((s) => s.idCard).filter((x) => x));
   const added = [];
   const errors = [];
+  const warnings = [];
   let duplicate = 0;
   let blank = 0;
+  let pending = 0;
+  let emptyId = 0;
 
   for (let idx = 0; idx < lines.length; idx++) {
     const raw = lines[idx].trim();
     if (!raw) { blank++; continue; }
     const parts = raw.split(/[,，、;；\t\s]+/).filter((x) => x !== '');
-    if (parts.length < 2) {
-      errors.push({ line: idx + 1, text: raw, msg: '缺少身份证号，格式应为「姓名，身份证号」' });
-      continue;
-    }
-    const name = parts[0].trim();
-    const idRaw = parts[parts.length - 1].trim();
-    const chk = validateIdCard(idRaw);
-    if (!chk.ok) { errors.push({ line: idx + 1, text: raw, msg: chk.msg }); continue; }
-    if (existing.has(chk.value)) { duplicate++; continue; }
-    existing.add(chk.value);
+    const name = parts[0] ? parts[0].trim() : '';
+    const idRaw = parts.length > 1 ? parts[parts.length - 1].trim() : '';
+    if (!name) { errors.push({ line: idx + 1, text: raw, msg: '缺少姓名，格式应为「姓名，身份证号」' }); continue; }
+    const chk = checkIdCard(idRaw);
+    if (chk.value && existing.has(chk.value)) { duplicate++; continue; }
+    if (chk.value) existing.add(chk.value);
     const st = { id: newId('s'), name: name, idCard: chk.value, classId: body.classId, createdAt: Date.now() };
     await upsertStudent(env, st);
     state.students.push(st);
     added.push(st);
+    if (chk.status === 'pending') { pending++; warnings.push({ line: idx + 1, text: raw, msg: '身份证号校验未通过，已标记为「待确认」' }); }
+    else if (chk.status === 'empty') { emptyId++; }
   }
 
-  return { ok: true, added: added.length, duplicate: duplicate, blank: blank, errors: errors, students: added };
+  return { ok: true, added: added.length, duplicate: duplicate, blank: blank, pending: pending, emptyId: emptyId, errors: errors, warnings: warnings, students: added };
 }
 
 async function hRecordsCell(body, env, state) {

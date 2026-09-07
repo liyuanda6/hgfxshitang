@@ -72,15 +72,16 @@ function makeId(p17) {
     '王五\t' + ids[2],
     '赵六，' + ids[3],
     '张三，' + ids[0],                    // 重复
-    '钱七，' + badId,                     // 校验位错误
-    '无效行',                              // 缺字段
+    '钱七，' + badId,                     // 校验位错误（现标记待确认并入库）
+    '，',                               // 仅分隔符，缺姓名（报错）
     '  '                                   // 空行
   ].join('\n');
   r = await call('/api/students/import', { classId: c1, text: text });
-  ok('成功导入 4 人', r.data.added === 4, JSON.stringify({ a: r.data.added }));
+  ok('成功导入 5 人（含校验位错误的 1 人）', r.data.added === 5, JSON.stringify({ a: r.data.added }));
   ok('重复身份证被去重（1 条）', r.data.duplicate === 1, String(r.data.duplicate));
-  ok('校验位错误的行被拦截', r.data.errors.some((e) => /校验位/.test(e.msg)));
-  ok('缺字段的行被拦截', r.data.errors.some((e) => /缺少身份证号/.test(e.msg)));
+  ok('校验位错误的行标记为待确认', r.data.warnings.some((e) => /待确认/.test(e.msg)), JSON.stringify(r.data.warnings));
+  ok('待确认人数=1', r.data.pending === 1, String(r.data.pending));
+  ok('缺少姓名的行被拦截', r.data.errors.some((e) => /缺少姓名/.test(e.msg)));
   ok('身份证统一大写', r.data.students.every((s) => s.idCard === s.idCard.toUpperCase()));
   const s1 = r.data.students[0].id, s2 = r.data.students[1].id, s3 = r.data.students[2].id, s4 = r.data.students[3].id;
 
@@ -170,21 +171,21 @@ function makeId(p17) {
   ok('表头字段齐全（10 个字段，顺序正确）',
     lines[0] === '"班级","姓名","身份证号","用餐标准","每日餐费","本月应就餐天数","总费用","备注","应扣除费用","当月真实费用"', lines[0]);
   ok('含合计行', /^"合计"/.test(lines[lines.length - 1]), lines[lines.length - 1]);
-  ok('单班导出仅含本班（5 学生 + 表头 + 合计 = 7 行）', lines.length === 7, String(lines.length));
+  ok('单班导出仅含本班（6 学生 + 表头 + 合计 = 8 行）', lines.length === 8, String(lines.length));
   ok('单班导出不含其他班级', !lines.some((l) => l.indexOf('一年级二班') >= 0));
   ok('身份证号以文本形式保存（Excel 不变科学计数）',
     lines.some((l) => l.indexOf('"' + ids[0] + '"') >= 0), lines[1]);
   ok('合计行数值为累加结果',
     (function () {
       const last = lines[lines.length - 1].split(',');
-      return last[6] === '1530' && last[8] === '999' && last[9] === '1224';
+      return last[6] === '1836' && last[8] === '999' && last[9] === '1530';
     })(), lines[lines.length - 1]);
 
   t = await callText('/api/export?month=' + month + '&scope=all');
   lines = t.text.replace(/^\uFEFF/, '').split('\r\n');
   ok('全校导出含两个班级', lines.some((l) => l.indexOf('一年级一班') === 1) && lines.some((l) => l.indexOf('一年级二班') === 1));
   ok('全校导出含合计行', /^"合计"/.test(lines[lines.length - 1]));
-  ok('全校导出行数正确（7 学生 + 表头 + 合计）', lines.length === 9, String(lines.length));
+  ok('全校导出行数正确（8 学生 + 表头 + 合计）', lines.length === 10, String(lines.length));
 
   /* ---------- 9. 密码修改 ---------- */
   console.log('\n[9] 修改管理密码');
@@ -220,7 +221,7 @@ function makeId(p17) {
   ok('数据文件已生成', fs.existsSync(p));
   const disk = JSON.parse(fs.readFileSync(p, 'utf8'));
   ok('磁盘中保存了班级数据', disk.classes.length === 1 && disk.classes[0].name === '一年级一班');
-  ok('磁盘中保存了学生数据', disk.students.length === 5, String(disk.students.length));
+  ok('磁盘中保存了学生数据', disk.students.length === 6, String(disk.students.length));
   ok('密码以哈希存储（无明文）', !fs.readFileSync(p, 'utf8').includes('"password": "admin"') && !!disk.settings.passwordHash && !disk.settings.password);
 
   console.log('\n========================================');

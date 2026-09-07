@@ -112,7 +112,7 @@
             <label class="field"><span>所属班级</span><select id="stClass" class="select"></select></label>
             <button class="btn btn-primary" id="btnAddStudent">＋ 新增学生</button>
           </div>
-          <div class="card-sub">新增学生默认用餐标准为「早餐+中餐」，可在就餐登记页调整。</div>
+          <div class="card-sub">身份证号<b>可留空</b>：留空或填写但校验不过都会照常保存并标记为「待确认」，可在学生管理中随时修改。新增学生默认用餐标准为「早餐+中餐」，可在就餐登记页调整。</div>
         </div>
 
         <div class="card">
@@ -134,7 +134,7 @@
             <button class="btn btn-ghost" id="btnClearImport">清空</button>
             <button class="btn btn-primary" id="btnImport">⬆ 开始导入</button>
           </div>
-          <div class="card-sub">导入时将自动清洗首尾空格、字母统一大写、按身份证号<b>去重</b>，并校验 18 位格式与校验位。</div>
+          <div class="card-sub">导入时将自动清洗首尾空格、字母统一大写、按身份证号<b>去重</b>。身份证号<b>可留空或暂不通过校验</b>——这类学生将标记为「待确认」，可稍后在学生管理中修正。</div>
           <div id="importResult" class="import-result" hidden></div>
         </div>
 

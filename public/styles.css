@@ -250,6 +250,15 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   padding: 5px 11px; border-radius: 20px;
 }
 
+/* ---------- 身份证核验状态徽章 ---------- */
+.id-badge {
+  display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 10px;
+  font-size: 11px; line-height: 18px; vertical-align: middle; white-space: nowrap;
+}
+.id-badge.ok { color: #15803d; background: #dcfce7; border: 1px solid #bbf7d0; }
+.id-badge.pending { color: #b45309; background: #fef3c7; border: 1px solid #fde68a; }
+.id-badge.empty { color: #64748b; background: #f1f5f9; border: 1px solid #e2e8f0; }
+
 /* ---------- 统计 ---------- */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .stat-card {
@@ -284,6 +293,7 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .ir-err { background: var(--danger-soft); border: 1px solid #fecaca; color: #991b1b; }
 .ir-title { font-weight: 700; margin-bottom: 4px; }
 .err-list { max-height: 170px; overflow-y: auto; margin-top: 6px; font-size: 12px; }
+.warn-list { max-height: 170px; overflow-y: auto; margin-top: 6px; font-size: 12px; }
 
 .meta-line { font-size: 12.5px; color: var(--text-3); }
 .meta-line b { color: var(--text); }

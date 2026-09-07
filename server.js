@@ -107,6 +107,22 @@ function validateIdCard(raw) {
   return { ok: true, value: id };
 }
 
+/**
+ * 宽松身份证校验：用于"可留空 / 校验不过先存后改"的场景。
+ * 返回 { value, empty, valid, status }
+ *  - empty:  未填写身份证号
+ *  - pending:填写了但校验未通过（格式或校验位错误）→ 标记为「待确认」
+ *  - ok:     校验通过
+ * 无论哪种情况都不再拒绝保存，由调用方按 status 打标记。
+ */
+function checkIdCard(raw) {
+  const id = String(raw == null ? '' : raw).trim().toUpperCase();
+  if (!id) return { value: '', empty: true, valid: false, status: 'empty' };
+  const v = validateIdCard(id);
+  if (v.ok) return { value: v.value, empty: false, valid: true, status: 'ok' };
+  return { value: id, empty: false, valid: false, status: 'pending' };
+}
+
 /* ============================ 数据层 ============================ */
 
 /** 首次部署时，从 school-classes.json 自动生成全校班级（27 个） */
@@ -579,15 +595,15 @@ api['POST /api/days/set'] = function (body) {
 api['POST /api/students/add'] = function (body) {
   const name = requireString(body.name, '姓名', 30);
   findClass(body.classId);
-  const idCheck = validateIdCard(body.idCard);
-  if (!idCheck.ok) throw new ApiError(400, '【' + name + '】' + idCheck.msg);
-  if (state.students.some((s) => s.idCard === idCheck.value)) {
-    throw new ApiError(400, '身份证号「' + idCheck.value + '」已存在，不能重复添加');
+  const chk = checkIdCard(body.idCard);
+  // 仅在身份证号非空时才查重，避免空号互相误判为重复
+  if (chk.value && state.students.some((s) => s.idCard === chk.value)) {
+    throw new ApiError(400, '身份证号「' + chk.value + '」已存在，不能重复添加');
   }
   const st = {
     id: newId('s'),
     name: name,
-    idCard: idCheck.value,
+    idCard: chk.value,
     classId: body.classId,
     createdAt: Date.now()
   };
@@ -600,13 +616,12 @@ api['POST /api/students/update'] = function (body) {
   const st = findStudent(body.id);
   const name = requireString(body.name, '姓名', 30);
   findClass(body.classId);
-  const idCheck = validateIdCard(body.idCard);
-  if (!idCheck.ok) throw new ApiError(400, '【' + name + '】' + idCheck.msg);
-  if (state.students.some((s) => s.idCard === idCheck.value && s.id !== st.id)) {
-    throw new ApiError(400, '身份证号「' + idCheck.value + '」已被其他学生使用');
+  const chk = checkIdCard(body.idCard);
+  if (chk.value && state.students.some((s) => s.idCard === chk.value && s.id !== st.id)) {
+    throw new ApiError(400, '身份证号「' + chk.value + '」已被其他学生使用');
   }
   st.name = name;
-  st.idCard = idCheck.value;
+  st.idCard = chk.value;
   st.classId = body.classId;
   scheduleSave();
   return { ok: true, student: st };
@@ -623,37 +638,34 @@ api['POST /api/students/delete'] = function (body) {
   return { ok: true };
 };
 
-/** 批量导入：每行「姓名，身份证号」，分隔符支持 逗号 / 中文逗号 / 顿号 / 分号 / 空格 / 制表符 */
+/** 批量导入：每行「姓名，身份证号」，分隔符支持 逗号 / 中文逗号 / 顿号 / 分号 / 空格 / 制表符。
+ *  身份证号可留空、也可不通过校验——留空/不通过的行照常入库并标记为「待确认」，仅无法解析姓名才报错。 */
 api['POST /api/students/import'] = function (body) {
   findClass(body.classId);
   const text = String(body.text == null ? '' : body.text);
   const lines = text.split(/\r\n|\r|\n/);
-  const existing = new Set(state.students.map((s) => s.idCard));
+  const existing = new Set(state.students.map((s) => s.idCard).filter((x) => x)); // 仅保留非空号用于去重
   const added = [];
   const errors = [];
+  const warnings = [];
   let duplicate = 0;
   let blank = 0;
+  let pending = 0;
+  let emptyId = 0;
 
   lines.forEach((line, idx) => {
     const raw = line.trim();
     if (!raw) { blank++; return; }
     const parts = raw.split(/[,，、;；\t\s]+/).filter((x) => x !== '');
-    if (parts.length < 2) {
-      errors.push({ line: idx + 1, text: raw, msg: '缺少身份证号，格式应为「姓名，身份证号」' });
+    const name = parts[0] ? parts[0].trim() : '';
+    const idRaw = parts.length > 1 ? parts[parts.length - 1].trim() : '';
+    if (!name) {
+      errors.push({ line: idx + 1, text: raw, msg: '缺少姓名，格式应为「姓名，身份证号」' });
       return;
     }
-    const name = parts[0].trim();
-    const idRaw = parts[parts.length - 1].trim();
-    const chk = validateIdCard(idRaw);
-    if (!chk.ok) {
-      errors.push({ line: idx + 1, text: raw, msg: chk.msg });
-      return;
-    }
-    if (existing.has(chk.value)) {
-      duplicate++;
-      return;
-    }
-    existing.add(chk.value);
+    const chk = checkIdCard(idRaw);
+    if (chk.value && existing.has(chk.value)) { duplicate++; return; }
+    if (chk.value) existing.add(chk.value);
     const st = {
       id: newId('s'),
       name: name,
@@ -663,6 +675,8 @@ api['POST /api/students/import'] = function (body) {
     };
     state.students.push(st);
     added.push(st);
+    if (chk.status === 'pending') { pending++; warnings.push({ line: idx + 1, text: raw, msg: '身份证号校验未通过，已标记为「待确认」' }); }
+    else if (chk.status === 'empty') { emptyId++; }
   });
 
   if (added.length) scheduleSave();
@@ -671,7 +685,10 @@ api['POST /api/students/import'] = function (body) {
     added: added.length,
     duplicate: duplicate,
     blank: blank,
+    pending: pending,
+    emptyId: emptyId,
     errors: errors,
+    warnings: warnings,
     students: added
   };
 };

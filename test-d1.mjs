@@ -124,6 +124,15 @@ async function testD1() {
   r = await call(env, 'POST', '/api/students/add', { classId: cls1.id, name: '张明', idCard: sid });
   assert(r.status === 200 && r.data.ok, '新增学生成功');
 
+  // 身份证留空：允许保存（不再硬性拒绝）
+  r = await call(env, 'POST', '/api/students/add', { classId: cls1.id, name: '留空生', idCard: '' });
+  assert(r.status === 200 && r.data.ok && r.data.student.idCard === '', '身份证留空可新增');
+
+  // 身份证校验不过：仍保存并标记待确认（校验位错误）
+  const badId = sid.slice(0, 17) + (sid[17] === '1' ? '2' : '1');
+  r = await call(env, 'POST', '/api/students/add', { classId: cls1.id, name: '待确认生', idCard: badId });
+  assert(r.status === 200 && r.data.ok && r.data.student.idCard === badId, '校验位错误仍可新增（待确认）');
+
   // 设置应就餐天数（需密码）
   const month = state1.data.currentMonth;
   r = await call(env, 'POST', '/api/days/set', { month, days: 18, classIds: [cls1.id], password: 'admin' });
@@ -168,7 +177,12 @@ async function testD1() {
   const env2 = new MockD1();
   // 注意：MockD1 是内存库，env2 不共享 env 数据；这里改为在同 env 再读一次确认持久化
   r = await call(env, 'GET', '/api/state');
-  assert(r.data.students.length === 1 && r.data.students[0].name === '张明', '数据已持久化（学生仍在）');
+  assert(
+    r.data.students.some((s) => s.name === '张明') &&
+    r.data.students.some((s) => s.name === '留空生' && s.idCard === '') &&
+    r.data.students.some((s) => s.name === '待确认生' && s.idCard === badId),
+    '数据已持久化（张明/留空生/待确认生均在）'
+  );
   assert(r.data.days[cls1.id + '|' + month] === 18, '天数已持久化');
 }
 
