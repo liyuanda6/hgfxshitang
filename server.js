@@ -39,7 +39,8 @@ try {
 const MEAL_STANDARDS = [
   { key: 'BL', label: '早餐+中餐' },
   { key: 'B', label: '仅早餐' },
-  { key: 'L', label: '仅中餐' }
+  { key: 'L', label: '仅中餐' },
+  { key: 'N', label: '未在校就餐' }
 ];
 const STANDARD_KEYS = MEAL_STANDARDS.map((s) => s.key);
 const DEFAULT_STANDARD = 'BL';
@@ -127,6 +128,7 @@ function defaultState() {
     settings: {
       breakfastPrice: 6,
       lunchPrice: 11,
+      statMonth: nowMonth(),
       salt: salt,
       passwordHash: hashPassword('admin', salt)
     },
@@ -158,6 +160,7 @@ function migrate(s) {
   }
   out.settings.breakfastPrice = money(out.settings.breakfastPrice);
   out.settings.lunchPrice = money(out.settings.lunchPrice);
+  if (!out.settings.statMonth || !isValidMonth(out.settings.statMonth)) out.settings.statMonth = nowMonth();
   // 清理脏数据
   out.classes = out.classes.filter((c) => c && c.id && c.name);
   const classIds = new Set(out.classes.map((c) => c.id));
@@ -229,12 +232,14 @@ let state = loadState();
 function getPriceSettings() {
   return {
     breakfastPrice: money(state.settings.breakfastPrice),
-    lunchPrice: money(state.settings.lunchPrice)
+    lunchPrice: money(state.settings.lunchPrice),
+    statMonth: state.settings.statMonth || nowMonth()
   };
 }
 
 function dailyFeeOf(standard) {
   const p = getPriceSettings();
+  if (standard === 'N') return money(0); // 未在校就餐：每日金额 0
   if (standard === 'B') return money(p.breakfastPrice);
   if (standard === 'L') return money(p.lunchPrice);
   return money(p.breakfastPrice + p.lunchPrice); // BL 默认
@@ -735,6 +740,15 @@ api['POST /api/settings/password'] = function (body) {
 api['POST /api/verify'] = function (body) {
   requirePassword(body);
   return { ok: true };
+};
+
+api['POST /api/settings/statMonth'] = function (body) {
+  requirePassword(body);
+  const month = String(body.month || '');
+  if (!isValidMonth(month)) throw new ApiError(400, '月份格式不正确（应为 YYYY-MM）');
+  state.settings.statMonth = month;
+  scheduleSave();
+  return { ok: true, statMonth: month };
 };
 
 /* ============================ 导出 CSV ============================ */

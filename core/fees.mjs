@@ -4,7 +4,8 @@
 export const MEAL_STANDARDS = [
   { key: 'BL', label: '早餐+中餐' },
   { key: 'B', label: '仅早餐' },
-  { key: 'L', label: '仅中餐' }
+  { key: 'L', label: '仅中餐' },
+  { key: 'N', label: '未在校就餐' }
 ];
 export const STANDARD_KEYS = MEAL_STANDARDS.map((s) => s.key);
 export const DEFAULT_STANDARD = 'BL';
@@ -22,6 +23,7 @@ export function standardLabel(key) {
 
 export function dailyFeeOf(standard, prices) {
   const p = prices || { breakfastPrice: 6, lunchPrice: 11 };
+  if (standard === 'N') return money(0); // 未在校就餐：每日金额 0
   if (standard === 'B') return money(p.breakfastPrice);
   if (standard === 'L') return money(p.lunchPrice);
   return money(p.breakfastPrice + p.lunchPrice); // BL 默认

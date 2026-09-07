@@ -177,6 +177,27 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .btn-link.danger:hover { background: var(--danger-soft); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 
+/* ---------- 班级按钮网格（就餐登记入口） ---------- */
+.class-grid-wrap { padding: 16px 16px 4px; }
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.class-btn {
+  padding: 16px 14px;
+  font-size: 15px; font-weight: 600; color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border-strong); border-radius: 10px;
+  cursor: pointer; transition: background .15s, border-color .15s, color .15s, transform .12s;
+  text-align: center; line-height: 1.3;
+}
+.class-btn:hover {
+  background: var(--primary-soft); border-color: var(--primary); color: var(--primary-dark);
+  transform: translateY(-1px);
+}
+.class-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
 /* ---------- 表格 ---------- */
 .table-wrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -508,6 +529,8 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   .modal-foot .btn { flex: 1 1 0; padding: 12px; }
   .class-pick-list { max-height: 40vh; }
   .class-pick { padding: 11px 13px; }
+  .class-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .class-btn { padding: 14px 10px; font-size: 15px; }
   .pwd-input { width: 100%; padding: 11px 12px; }
 
   /* --- 其他 --- */

@@ -21,7 +21,6 @@
 
     <nav class="nav" id="nav">
       <button class="nav-item active" data-page="register"><span class="ni">🍚</span><span data-short="登记">就餐登记</span></button>
-      <button class="nav-item" data-page="classes"><span class="ni">🏫</span><span data-short="班级">班级管理</span></button>
       <button class="nav-item" data-page="students"><span class="ni">🧑‍🎓</span><span data-short="学生">学生管理</span></button>
       <button class="nav-item" data-page="report"><span class="ni">📊</span><span data-short="统计">统计报表</span></button>
       <button class="nav-item" data-page="settings"><span class="ni">⚙️</span><span data-short="设置">系统设置</span></button>
@@ -55,19 +54,21 @@
         <div class="card">
           <div class="card-head">
             <div class="head-left">
-              <label class="field-inline">
-                <span>班级</span>
-                <select id="regClass" class="select"></select>
-              </label>
-              <div class="meta-line" id="regMeta"></div>
+              <div class="meta-line" id="regMonthLabel"></div>
             </div>
             <div class="head-right">
+              <button class="btn btn-ghost" id="btnBackClasses" hidden>← 返回班级选择</button>
               <button class="btn btn-ghost" id="btnReload">↻ 刷新</button>
-              <button class="btn btn-primary" id="btnExportClass">⬇ 导出本班餐费核对表</button>
+              <button class="btn btn-primary" id="btnExportClass" hidden>⬇ 导出本班餐费核对表</button>
             </div>
           </div>
 
-          <div class="table-wrap">
+          <div class="class-grid-wrap">
+            <div class="class-grid" id="regClassGrid"></div>
+            <div class="empty" id="regGridEmpty" hidden>还没有班级，请到「系统设置」中创建班级。</div>
+          </div>
+
+          <div class="table-wrap" id="regTableWrap" hidden>
             <table class="table" id="regTable">
               <thead>
                 <tr>
@@ -94,49 +95,9 @@
           <b>使用提示</b>
           <ul>
             <li>「用餐标准」「备注」「应扣除费用」支持行内直接修改，<b>鼠标移开即自动保存</b>。</li>
-            <li>「本月应就餐天数」由管理员在 <b>班级管理</b> 中设置（需管理密码），此处只读。</li>
+            <li>「本月应就餐天数」由管理员在 <b>系统设置 → 班级管理</b> 中设置（需管理密码），此处只读。</li>
             <li>计算公式：总费用 = 应就餐天数 × 每日餐费；当月真实费用 = 总费用 − 应扣除费用（<b>不会为负数</b>）。</li>
             <li>当月真实费用 ≤ 0 时会<span class="danger-text">标红提示</span>，请核对备注与扣除项。</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ========== 班级管理 ========== -->
-      <section class="page" id="page-classes">
-        <div class="card">
-          <div class="card-head">
-            <div class="head-left">
-              <input id="newClassName" class="input" placeholder="输入新班级名称，如：一年级一班" maxlength="60">
-              <button class="btn btn-primary" id="btnAddClass">＋ 新增班级</button>
-            </div>
-            <div class="head-right">
-              <button class="btn btn-warn" id="btnBatchDays">🗓 批量设置本月应就餐天数</button>
-            </div>
-          </div>
-          <div class="card-sub" id="classMonthTip"></div>
-          <div class="table-wrap">
-            <table class="table" id="classTable">
-              <thead>
-                <tr>
-                  <th class="c-idx">序号</th>
-                  <th>班级名称</th>
-                  <th class="c-days">本月应就餐天数</th>
-                  <th class="c-num">学生人数</th>
-                  <th class="c-act">操作</th>
-                </tr>
-              </thead>
-              <tbody id="classBody"></tbody>
-            </table>
-          </div>
-          <div class="empty" id="classEmpty" hidden>还没有班级，请在上方输入名称后点击「新增班级」。</div>
-        </div>
-
-        <div class="hint-card">
-          <b>说明</b>
-          <ul>
-            <li>应就餐天数按「班级 + 月份」分别保存，切换月份互不影响，历史月份可随时回看。</li>
-            <li><b>批量设置</b>：输入一个天数 → 弹出全部班级（默认全选，可取消勾选）→ 输入管理密码后应用到所选班级。</li>
-            <li>删除班级会<b>同时删除该班所有学生及其就餐记录</b>，需二次确认并验证管理密码。</li>
           </ul>
         </div>
       </section>
@@ -280,6 +241,45 @@
         </div>
 
         <div class="card">
+        <div class="card">
+          <div class="card-title">班级管理</div>
+          <div class="card-head">
+            <div class="head-left">
+              <input id="newClassName" class="input" placeholder="输入新班级名称，如：一年级一班" maxlength="60">
+              <button class="btn btn-primary" id="btnAddClass">＋ 新增班级</button>
+            </div>
+            <div class="head-right">
+              <button class="btn btn-warn" id="btnBatchDays">🗓 批量设置本月应就餐天数</button>
+            </div>
+          </div>
+          <div class="card-sub" id="setClassMonthTip"></div>
+          <div class="table-wrap">
+            <table class="table" id="setClassTable">
+              <thead>
+                <tr>
+                  <th class="c-idx">序号</th>
+                  <th>班级名称</th>
+                  <th class="c-days">本月应就餐天数</th>
+                  <th class="c-num">学生人数</th>
+                  <th class="c-act">操作</th>
+                </tr>
+              </thead>
+              <tbody id="setClassBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="setClassEmpty" hidden>还没有班级，请在上方输入名称后点击「新增班级」。</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">当前统计月份（统计周期）</div>
+          <div class="card-sub">班主任在「就餐登记」中只能登记该月份，无法自行更改；统计完成后由管理员在此一键切换。应就餐天数也按此月份保存。</div>
+          <div class="form-row">
+            <label class="field"><span>切换为月份</span><input id="statMonthInput" class="input" type="month"></label>
+            <button class="btn btn-primary" id="btnSetStatMonth">📅 设置为当前统计月份（需密码）</button>
+          </div>
+          <div class="card-sub" id="statMonthTip"></div>
+        </div>
+
           <div class="card-title">数据与备份</div>
           <div class="form-row">
             <button class="btn btn-ghost" id="btnBackup">⬇ 下载数据备份（JSON）</button>

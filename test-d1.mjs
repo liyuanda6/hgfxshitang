@@ -3,7 +3,7 @@
 
 import { DatabaseSync } from 'node:sqlite';
 import { onRequest } from './core/handler.mjs';
-import { buildMealSheets, buildRow } from './core/fees.mjs';
+import { buildMealSheets, buildRow, dailyFeeOf, MEAL_STANDARDS } from './core/fees.mjs';
 
 /* ---------- D1 接口 mock（与 Cloudflare D1 行为一致） ---------- */
 
@@ -151,6 +151,18 @@ async function testD1() {
   // csv 导出
   r = await call(env, 'GET', '/api/export?month=' + month + '&scope=all');
   assert(r.status === 200 && (r.data._text || '').includes('张明'), 'csv 导出包含学生数据');
+
+  // 未在校就餐餐标（N）：每日金额为 0
+  assert(MEAL_STANDARDS.some((s) => s.key === 'N'), '餐标含「未在校就餐」(N)');
+  assert(Math.round(dailyFeeOf('N', { breakfastPrice: 6, lunchPrice: 11 }) * 100) / 100 === 0, '未在校就餐每日餐费 = 0');
+
+  // 设置当前统计月份（密码保护）
+  r = await call(env, 'POST', '/api/settings/statMonth', { month: '2026-10', password: 'newpass123' });
+  assert(r.status === 200 && r.data.statMonth === '2026-10', '设置当前统计月份=2026-10 成功');
+  r = await call(env, 'POST', '/api/settings/statMonth', { month: '2026-10', password: 'wrong' });
+  assert(r.status === 403, '错误密码不能修改统计月份 (403)');
+  r = await call(env, 'GET', '/api/state');
+  assert(r.data.settings.statMonth === '2026-10', 'statMonth 已持久化=2026-10');
 
   // 重新加载（新 env 等价“新一次请求”读回持久化数据）
   const env2 = new MockD1();

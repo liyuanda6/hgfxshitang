@@ -11,7 +11,8 @@ let S = {
   standards: [
     { key: 'BL', label: '早餐+中餐' },
     { key: 'B', label: '仅早餐' },
-    { key: 'L', label: '仅中餐' }
+    { key: 'L', label: '仅中餐' },
+    { key: 'N', label: '未在校就餐' }
   ],
   defaultStandard: 'BL',
   classes: [],
@@ -28,11 +29,10 @@ let filterClassId = '';
 let searchText = '';
 
 const PAGES = {
-  register: { title: '就餐登记', desc: '按班级、按月登记学生用餐标准与备注，费用自动计算', month: true },
-  classes: { title: '班级管理', desc: '维护班级信息，设置各班级本月应就餐天数', month: true },
+  register: { title: '就餐登记', desc: '选择班级进入餐费登记页，按当前统计月份登记学生用餐标准', month: false },
   students: { title: '学生管理', desc: '新增、编辑、删除学生，支持批量导入（姓名 + 身份证号）', month: false },
   report: { title: '统计报表', desc: '全校汇总与各班明细，支持按月切换与导出', month: true },
-  settings: { title: '系统设置', desc: '餐费标准、管理密码与数据备份', month: false }
+  settings: { title: '系统设置', desc: '餐费标准、班级管理、统计月份与管理密码', month: false }
 };
 
 /* ---------- 工具 ---------- */
@@ -69,6 +69,7 @@ async function api(path, body) {
 function dailyFee(std) {
   const b = r2(S.settings.breakfastPrice);
   const l = r2(S.settings.lunchPrice);
+  if (std === 'N') return 0; // 未在校就餐
   if (std === 'B') return r2(b);
   if (std === 'L') return r2(l);
   return r2(b + l);
@@ -266,7 +267,6 @@ function switchPage(page) {
 
 function renderPage(page) {
   if (page === 'register') renderRegister();
-  else if (page === 'classes') renderClasses();
   else if (page === 'students') renderStudents();
   else if (page === 'report') renderReport();
   else if (page === 'settings') renderSettings();
@@ -304,16 +304,6 @@ function fillClassSelects() {
   const opts = S.classes.map((c) => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join('');
   const empty = '<option value="">（请先创建班级）</option>';
 
-  const reg = $('#regClass');
-  if (!S.classes.length) {
-    reg.innerHTML = empty;
-    currentClassId = '';
-  } else {
-    reg.innerHTML = opts;
-    if (!S.classes.some((c) => c.id === currentClassId)) currentClassId = S.classes[0].id;
-    reg.value = currentClassId;
-  }
-
   $('#stClass').innerHTML = S.classes.length ? opts : empty;
   $('#impClass').innerHTML = S.classes.length ? opts : empty;
 
@@ -326,40 +316,50 @@ function fillClassSelects() {
 /* ============================ 就餐登记 ============================ */
 
 function renderRegister() {
-  const body = $('#regBody');
-  const foot = $('#regFoot');
-  const emptyBox = $('#regEmpty');
-  const table = $('#regTable');
-  const meta = $('#regMeta');
+  // 就餐登记始终锁定在「当前统计月份」，班主任不可更改
+  MONTH = S.settings.statMonth || MONTH;
+  $('#regMonthLabel').innerHTML = '当前统计月份：<b>' + MONTH + '</b>';
+
+  const grid = $('#regClassGrid');
+  const gridEmpty = $('#regGridEmpty');
+  const hasClass = S.classes.length > 0;
+  gridEmpty.hidden = hasClass;
+  grid.innerHTML = S.classes.map((c) =>
+    '<button type="button" class="class-btn' + (c.id === currentClassId ? ' active' : '') + '" data-cid="' + c.id + '">' +
+    escapeHtml(c.name) + '</button>'
+  ).join('');
+  grid.querySelectorAll('.class-btn').forEach((b) => {
+    b.addEventListener('click', () => onPickClass(b.dataset.cid));
+  });
+
   const cls = S.classes.find((c) => c.id === currentClassId);
+  const wrap = $('#regTableWrap');
+  const emptyBox = $('#regEmpty');
+  const foot = $('#regFoot');
 
   if (!cls) {
-    table.style.display = 'none';
-    emptyBox.hidden = false;
-    emptyBox.textContent = '还没有班级，请先到「班级管理」创建班级。';
-    meta.textContent = '';
+    wrap.hidden = true;
+    $('#btnExportClass').hidden = true;
+    $('#btnBackClasses').hidden = true;
+    emptyBox.hidden = true;
     foot.innerHTML = '';
     return;
   }
 
-  const days = daysOf(cls.id, MONTH);
-  meta.innerHTML =
-    '本月应就餐天数：<b>' + days + ' 天</b>' +
-    (days === 0 ? ' <span class="danger-text">（未设置，请到班级管理设置）</span>' : '') +
-    '　·　早餐 ¥' + fmtN(S.settings.breakfastPrice) + ' / 午餐 ¥' + fmtN(S.settings.lunchPrice) +
-    ' / 全天 ¥' + fmtN(r2(S.settings.breakfastPrice + S.settings.lunchPrice));
+  const body = $('#regBody');
+  $('#btnExportClass').hidden = false;
+  $('#btnBackClasses').hidden = false;
+  wrap.hidden = false;
+  emptyBox.hidden = true;
+  foot.innerHTML = '';
 
   const list = classStudents(cls.id);
   if (!list.length) {
-    table.style.display = 'none';
+    body.innerHTML = '';
     emptyBox.hidden = false;
     emptyBox.innerHTML = '班级「' + escapeHtml(cls.name) + '」还没有学生，请到「学生管理」添加或导入。';
-    foot.innerHTML = '';
     return;
   }
-
-  table.style.display = '';
-  emptyBox.hidden = true;
 
   body.innerHTML = list.map((st, i) => {
     const r = rowOf(st, MONTH);
@@ -383,6 +383,19 @@ function renderRegister() {
 
   bindRowEditors(body);
   updateRegisterFoot();
+}
+
+async function onPickClass(cid) {
+  const cls = S.classes.find((c) => c.id === cid);
+  if (!cls) return;
+  const ok = await confirmDialog(
+    '进入班级登记',
+    '<p>是否进入 <b>' + escapeHtml(cls.name) + '</b> 的餐费登记页面？</p>' +
+    '<p style="color:#5b6577;font-size:13px">当前统计月份：<b>' + (S.settings.statMonth || MONTH) + '</b></p>'
+  );
+  if (!ok) return;
+  currentClassId = cid;
+  renderRegister();
 }
 
 function bindRowEditors(body) {
@@ -466,12 +479,16 @@ function updateRegisterFoot() {
 /* ============================ 班级管理 ============================ */
 
 function renderClasses() {
-  const body = $('#classBody');
-  const emptyBox = $('#classEmpty');
+  const sm = S.settings.statMonth || MONTH;
+  const tip = $('#setClassMonthTip');
+  if (tip) tip.innerHTML = '当前统计月份为 <b>' + sm + '</b>，应就餐天数按「班级 + 月份」分别保存，历史月份可随时切换回看。';
+
+  const body = $('#setClassBody');
+  const emptyBox = $('#setClassEmpty');
   emptyBox.hidden = S.classes.length > 0;
 
   body.innerHTML = S.classes.map((c, i) => {
-    const days = daysOf(c.id, MONTH);
+    const days = daysOf(c.id, sm);
     const cnt = S.students.filter((s) => s.classId === c.id).length;
     return (
       '<tr data-cid="' + c.id + '">' +
@@ -538,10 +555,11 @@ function onSetDays(cid) {
 }
 
 async function openBatchDays(presetIds, single) {
-  const cur = presetIds && presetIds.length === 1 ? daysOf(presetIds[0], MONTH) : daysOf(S.classes[0] && S.classes[0].id, MONTH);
+  const sm = S.settings.statMonth || MONTH;
+  const cur = presetIds && presetIds.length === 1 ? daysOf(presetIds[0], sm) : daysOf(S.classes[0] && S.classes[0].id, sm);
   const listHtml = S.classes.map((c) => {
     const checked = !presetIds || presetIds.indexOf(c.id) >= 0;
-    const d = daysOf(c.id, MONTH);
+    const d = daysOf(c.id, sm);
     return '<label class="class-pick"><input type="checkbox" value="' + c.id + '"' + (checked ? ' checked' : '') + '>' +
       '<span>' + escapeHtml(c.name) + '</span>' +
       '<span class="cp-meta">当前 ' + (d === 0 ? '未设置' : d + ' 天') + ' · ' +
@@ -549,7 +567,7 @@ async function openBatchDays(presetIds, single) {
   }).join('');
 
   const bodyHtml =
-    '<div>将 <b>' + MONTH + '</b> 的应就餐天数设置为：</div>' +
+    '<div>将 <b>' + sm + '</b> 的应就餐天数设置为：</div>' +
     '<input class="pwd-input" id="__days" type="number" min="0" max="31" step="1" value="' + (cur || '') + '" placeholder="输入天数，如 18" style="max-width:200px">' +
     '<div class="card-sub" style="padding:8px 0 0">选择要应用的班级（默认全选，可取消勾选）：</div>' +
     '<div class="class-pick-list">' + listHtml + '</div>' +
@@ -568,7 +586,7 @@ async function openBatchDays(presetIds, single) {
       }
       const ids = Array.from(bodyEl.querySelectorAll('.class-pick input:checked')).map((i) => i.value);
       if (!ids.length) { markError('请至少勾选一个班级'); return false; }
-      return { month: MONTH, classIds: ids, days: days };
+      return { month: sm, classIds: ids, days: days };
     },
     submit: (data) => api('/api/days/set', data)
   });
@@ -763,7 +781,7 @@ function reportData() {
   const rows = S.classes.map((c) => {
     const list = classStudents(c.id);
     let total = 0, deduct = 0, real = 0;
-    const cnt = { BL: 0, B: 0, L: 0 };
+    const cnt = { BL: 0, B: 0, L: 0, N: 0 };
     list.forEach((st) => {
       const r = rowOf(st, MONTH);
       cnt[r.standard] = (cnt[r.standard] || 0) + 1;
@@ -782,9 +800,10 @@ function reportData() {
     cnt: {
       BL: a.cnt.BL + r.cnt.BL,
       B: a.cnt.B + r.cnt.B,
-      L: a.cnt.L + r.cnt.L
+      L: a.cnt.L + r.cnt.L,
+      N: a.cnt.N + (r.cnt.N || 0)
     }
-  }), { students: 0, total: 0, deduct: 0, real: 0, cnt: { BL: 0, B: 0, L: 0 } });
+  }), { students: 0, total: 0, deduct: 0, real: 0, cnt: { BL: 0, B: 0, L: 0, N: 0 } });
   return { rows: rows, sum: sum };
 }
 
@@ -829,9 +848,15 @@ function renderReport() {
 /* ============================ 系统设置 ============================ */
 
 function renderSettings() {
+  const sm = S.settings.statMonth || MONTH;
+  MONTH = sm;
   $('#priceBreakfast').value = r2(S.settings.breakfastPrice);
   $('#priceLunch').value = r2(S.settings.lunchPrice);
   $('#priceAll').value = fmtN(r2(S.settings.breakfastPrice + S.settings.lunchPrice));
+  $('#statMonthInput').value = sm;
+  const tip = $('#statMonthTip');
+  if (tip) tip.innerHTML = '当前统计月份：<b>' + sm + '</b>。班主任在就餐登记中只能登记该月份，无法自行更改。';
+  renderClasses();
 }
 
 async function onSavePrice() {
@@ -897,11 +922,27 @@ async function onClearMonth() {
   if (ok) { await refresh(); toast(MONTH + ' 的登记数据已清空', 'ok'); }
 }
 
+async function onSetStatMonth() {
+  const month = $('#statMonthInput').value;
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) { toast('请先选择有效的月份', 'warn'); return; }
+  const ok = await protectedAction({
+    title: '设置当前统计月份',
+    icon: '📅 ',
+    bodyHtml:
+      '<div>将<b>当前统计月份</b>设为 <b>' + month + '</b>。</div>' +
+      '<div class="card-sub" style="padding:8px 0 0">设置后全校班主任在「就餐登记」中只能登记该月份，无法自行更改。此操作需验证管理密码。</div>',
+    okText: '确认设置',
+    submit: (data) => api('/api/settings/statMonth', { month: month, password: data.password })
+  });
+  if (ok) { await refresh(); toast('当前统计月份已设为 ' + month, 'ok'); }
+}
+
 /* ============================ 数据加载 ============================ */
 
 async function refresh() {
   const data = await api('/api/state');
   S = data;
+  MONTH = S.settings.statMonth || MONTH;
   $('#footPort').textContent = location.port || (location.protocol === 'https:' ? '443' : '80');
   renderAll();
 }
@@ -922,8 +963,8 @@ function bindEvents() {
     renderPage(currentPage);
   });
 
-  $('#regClass').addEventListener('change', () => { currentClassId = $('#regClass').value; renderRegister(); });
   $('#btnReload').addEventListener('click', async () => { await refresh(); toast('数据已刷新', 'ok'); });
+  $('#btnBackClasses').addEventListener('click', () => { currentClassId = ''; renderRegister(); });
 
   $('#btnExportClass').addEventListener('click', () => {
     if (!currentClassId) { toast('请先选择班级', 'warn'); return; }
@@ -977,6 +1018,7 @@ function bindEvents() {
   $('#btnSavePwd').addEventListener('click', onSavePwd);
   $('#btnBackup').addEventListener('click', onBackup);
   $('#btnClearMonth').addEventListener('click', onClearMonth);
+  $('#btnSetStatMonth').addEventListener('click', onSetStatMonth);
   $('#priceBreakfast').addEventListener('input', () => {
     $('#priceAll').value = fmtN(r2(Number($('#priceBreakfast').value || 0) + Number($('#priceLunch').value || 0)));
   });
@@ -991,7 +1033,7 @@ function bindEvents() {
   try {
     const data = await api('/api/state');
     S = data;
-    MONTH = data.currentMonth;
+    MONTH = data.statMonth || data.currentMonth;
     $('#monthInput').value = MONTH;
     $('#footPort').textContent = location.port || (location.protocol === 'https:' ? '443' : '80');
     bindEvents();

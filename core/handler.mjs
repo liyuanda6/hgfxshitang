@@ -71,6 +71,7 @@ async function seedMeta(env) {
   const settings = {
     breakfastPrice: 6,
     lunchPrice: 11,
+    statMonth: currentMonth(),
     salt: salt,
     passwordHash: await hashPassword('admin', salt)
   };
@@ -353,6 +354,16 @@ async function hVerify(body, env, state) {
   return { ok: true };
 }
 
+async function hSettingsStatMonth(body, env, state) {
+  await requirePassword(body, state);
+  const month = String(body.month || '');
+  if (!isValidMonth(month)) throw new ApiError(400, '月份格式不正确（应为 YYYY-MM）');
+  const settings = Object.assign({}, state.settings, { statMonth: month });
+  await saveSettings(env, settings);
+  state.settings = settings;
+  return { ok: true, statMonth: month };
+}
+
 const HANDLERS = {
   'POST /api/classes/add': hClassesAdd,
   'POST /api/classes/rename': hClassesRename,
@@ -366,6 +377,7 @@ const HANDLERS = {
   'POST /api/records/clearMonth': hRecordsClearMonth,
   'POST /api/settings/prices': hSettingsPrices,
   'POST /api/settings/password': hSettingsPassword,
+  'POST /api/settings/statMonth': hSettingsStatMonth,
   'POST /api/verify': hVerify
 };
 
@@ -489,7 +501,7 @@ export async function onRequest(context) {
     if (pathname === '/api/state') {
       return jsonResponse({
         ok: true,
-        settings: { breakfastPrice: money(state.settings.breakfastPrice), lunchPrice: money(state.settings.lunchPrice) },
+        settings: { breakfastPrice: money(state.settings.breakfastPrice), lunchPrice: money(state.settings.lunchPrice), statMonth: state.settings.statMonth || currentMonth() },
         standards: MEAL_STANDARDS,
         defaultStandard: DEFAULT_STANDARD,
         classes: state.classes,
