@@ -402,6 +402,29 @@ function buildMealWorkbook(month, scope, classId) {
     return { title: t.name, headerTitle: headerTitle, hasData: rows.length > 0, rows: rows };
   });
 
+  // 全校总报表：末尾追加「各班餐费合计」汇总表
+  if (scope !== 'class') {
+    const summaryRows = [];
+    targets.forEach((t) => {
+      const sysCls = byKey[t.grade + '-' + t.cls];
+      let amount = 0;
+      if (sysCls) {
+        state.students
+          .filter((s) => s.classId === sysCls.id)
+          .forEach((st) => { amount += buildRow(st, month).real; });
+      }
+      summaryRows.push({ seq: summaryRows.length + 1, name: t.name, amount: money(amount), remark: '' });
+    });
+    const totalAmount = money(summaryRows.reduce((a, b) => a + b.amount, 0));
+    sheets.push({
+      type: 'summary',
+      title: '餐费合计',
+      headerTitle: monthLabel + school + ' 各班餐费合计表',
+      rows: summaryRows,
+      total: totalAmount
+    });
+  }
+
   return xlsxExport.renderMealWorkbook(sheets);
 }
 
@@ -636,6 +659,21 @@ api['POST /api/students/delete'] = function (body) {
   });
   scheduleSave();
   return { ok: true };
+};
+
+/** 一键清空某班级全部学生（含其就餐记录），需管理密码 */
+api['POST /api/students/deleteByClass'] = function (body) {
+  requirePassword(body);
+  const cls = findClass(body.classId);
+  const removedIds = new Set(state.students.filter((s) => s.classId === cls.id).map((s) => s.id));
+  const removedCount = removedIds.size;
+  state.students = state.students.filter((s) => s.classId !== cls.id);
+  Object.keys(state.records).forEach((m) => {
+    removedIds.forEach((sid) => { delete state.records[m][sid]; });
+    if (Object.keys(state.records[m]).length === 0) delete state.records[m];
+  });
+  scheduleSave();
+  return { ok: true, removed: removedCount };
 };
 
 /** 批量导入：每行「姓名，身份证号」，分隔符支持 逗号 / 中文逗号 / 顿号 / 分号 / 空格 / 制表符。
@@ -947,7 +985,13 @@ const server = http.createServer((req, res) => {
           const month = isValidMonth(qMonth) ? qMonth : nowMonth();
           const classId = u.searchParams.get('classId') || '';
           const buf = buildMealWorkbook(month, scope, classId);
-          const filename = month + ' 附小学生餐费核对表.xlsx';
+          let filename;
+          if (scope === 'class') {
+            const cls = state.classes.find((c) => c.id === classId);
+            filename = (cls ? cls.name : '班级') + month + '餐费核对表.xlsx';
+          } else {
+            filename = month + ' 附小学生餐费核对表.xlsx';
+          }
           const encoded = encodeURIComponent(filename);
           res.writeHead(200, {
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

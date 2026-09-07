@@ -256,6 +256,24 @@ async function hStudentsDelete(body, env, state) {
   return { ok: true };
 }
 
+/** 一键清空某班级全部学生（含其就餐记录），需管理密码 */
+async function hStudentsDeleteByClass(body, env, state) {
+  await requirePassword(body, state);
+  const cls = findClass(state, body.classId);
+  const removed = state.students.filter((s) => s.classId === cls.id);
+  const removedIds = new Set(removed.map((s) => s.id));
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM records WHERE student_id IN (SELECT id FROM students WHERE class_id=?)').bind(cls.id),
+    env.DB.prepare('DELETE FROM students WHERE class_id=?').bind(cls.id)
+  ]);
+  state.students = state.students.filter((s) => s.classId !== cls.id);
+  Object.keys(state.records).forEach((m) => {
+    Object.keys(state.records[m]).forEach((sid) => { if (!state.students.some((s) => s.id === sid)) delete state.records[m][sid]; });
+    if (Object.keys(state.records[m]).length === 0) delete state.records[m];
+  });
+  return { ok: true, removed: removed.length };
+}
+
 async function hStudentsImport(body, env, state) {
   findClass(state, body.classId);
   const text = String(body.text == null ? '' : body.text);
@@ -371,6 +389,7 @@ const HANDLERS = {
   'POST /api/students/add': hStudentsAdd,
   'POST /api/students/update': hStudentsUpdate,
   'POST /api/students/delete': hStudentsDelete,
+  'POST /api/students/deleteByClass': hStudentsDeleteByClass,
   'POST /api/students/import': hStudentsImport,
   'POST /api/records/cell': hRecordsCell,
   'POST /api/records/clearMonth': hRecordsClearMonth,
@@ -440,7 +459,13 @@ async function handleXlsx(request, env) {
   const sheets = buildMealSheets(month, scope, classId, state, SCHOOL_CLASSES);
   if (!sheets) return new Response('班级不存在', { status: 400 });
   const buf = renderMealWorkbook(sheets);
-  const filename = month + ' 附小学生餐费核对表.xlsx';
+  let filename;
+  if (scope === 'class') {
+    const cls = state.classes.find((c) => c.id === classId);
+    filename = (cls ? cls.name : '班级') + month + '餐费核对表.xlsx';
+  } else {
+    filename = month + ' 附小学生餐费核对表.xlsx';
+  }
   const encoded = encodeURIComponent(filename);
   return new Response(buf, {
     status: 200,

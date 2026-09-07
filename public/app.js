@@ -342,6 +342,7 @@ function renderRegister() {
     wrap.hidden = true;
     $('#btnExportClass').hidden = true;
     $('#btnBackClasses').hidden = true;
+    $('#btnClearClassStudents').hidden = true;
     emptyBox.hidden = true;
     foot.innerHTML = '';
     return;
@@ -350,6 +351,7 @@ function renderRegister() {
   const body = $('#regBody');
   $('#btnExportClass').hidden = false;
   $('#btnBackClasses').hidden = false;
+  $('#btnClearClassStudents').hidden = false;
   wrap.hidden = false;
   emptyBox.hidden = true;
   foot.innerHTML = '';
@@ -505,6 +507,7 @@ function renderClasses() {
       '<td class="c-act" data-label="操作">' +
       '<button class="btn-link" data-act="days">设置天数</button>' +
       '<button class="btn-link" data-act="rename">重命名</button>' +
+      '<button class="btn-link danger" data-act="delStudents">清空学生</button>' +
       '<button class="btn-link danger" data-act="del">删除</button>' +
       '</td></tr>'
     );
@@ -515,6 +518,7 @@ function renderClasses() {
       const cid = btn.closest('tr').dataset.cid;
       if (btn.dataset.act === 'days') onSetDays(cid);
       if (btn.dataset.act === 'rename') onRenameClass(cid);
+      if (btn.dataset.act === 'delStudents') onDeleteClassStudents(cid);
       if (btn.dataset.act === 'del') onDeleteClass(cid);
     });
   });
@@ -623,6 +627,31 @@ async function onDeleteClass(cid) {
     if (currentClassId === cid) currentClassId = '';
     await refresh();
     toast('班级「' + cls.name + '」及其数据已删除', 'ok');
+  }
+}
+
+async function onDeleteClassStudents(cid) {
+  const cls = S.classes.find((c) => c.id === cid);
+  if (!cls) return;
+  const cnt = S.students.filter((s) => s.classId === cid).length;
+  const ok = await confirmDialog(
+    '清空班级学生',
+    '<p>确定要删除班级 <b>' + escapeHtml(cls.name) + '</b> 的 <b>全部 ' + cnt + ' 名学生</b>（含其就餐记录）吗？</p>' +
+    '<p style="color:#dc2626"><b>此操作不可恢复！</b>若需保留名单请先到「系统设置」下载数据备份。</p>'
+  );
+  if (!ok) return;
+  const done = await protectedAction({
+    title: '清空班级学生 · 确认',
+    icon: '⚠️ ',
+    danger: true,
+    okText: '确认清空',
+    bodyHtml: '<div style="color:#dc2626">最后一步：请输入管理密码以确认清空班级 <b>' + escapeHtml(cls.name) + '</b> 的全部学生。</div>',
+    submit: (data) => api('/api/students/deleteByClass', { classId: cid, password: data.password })
+  });
+  if (done) {
+    if (currentClassId === cid) currentClassId = '';
+    await refresh();
+    toast('班级「' + cls.name + '」的学生已清空', 'ok');
   }
 }
 
@@ -1011,6 +1040,11 @@ function bindEvents() {
     if (!currentClassId) { toast('请先选择班级', 'warn'); return; }
     window.location.href = '/api/export/xlsx?month=' + encodeURIComponent(MONTH) + '&scope=class&classId=' + encodeURIComponent(currentClassId);
     toast('已开始导出本班餐费核对表（xlsx）', 'ok');
+  });
+
+  $('#btnClearClassStudents').addEventListener('click', () => {
+    if (!currentClassId) { toast('请先选择班级', 'warn'); return; }
+    onDeleteClassStudents(currentClassId);
   });
 
   $('#btnExportAll').addEventListener('click', () => {

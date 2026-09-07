@@ -219,5 +219,28 @@ export function buildMealSheets(month, scope, classId, state, schoolClasses) {
     return { title: t.name, headerTitle: headerTitle, hasData: rows.length > 0, rows: rows };
   });
 
+  // 全校总报表：末尾追加「各班餐费合计」汇总表
+  if (scope !== 'class') {
+    const summaryRows = [];
+    targets.forEach((t) => {
+      const sysCls = byKey[t.grade + '-' + t.cls];
+      let amount = 0;
+      if (sysCls) {
+        state.students
+          .filter((s) => s.classId === sysCls.id)
+          .forEach((st) => { amount += buildRow(st, month, state).real; });
+      }
+      summaryRows.push({ seq: summaryRows.length + 1, name: t.name, amount: money(amount), remark: '' });
+    });
+    const totalAmount = money(summaryRows.reduce((a, b) => a + b.amount, 0));
+    sheets.push({
+      type: 'summary',
+      title: '餐费合计',
+      headerTitle: monthLabel + school + ' 各班餐费合计表',
+      rows: summaryRows,
+      total: totalAmount
+    });
+  }
+
   return sheets;
 }

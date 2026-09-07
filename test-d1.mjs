@@ -96,6 +96,14 @@ function testFeeMath() {
   // 单列行内校验
   const 王 = s1.rows.find((r) => r.name === '王小雨');
   assert(Math.round(王.total * 100) / 100 === 165, '王小雨(仅中餐15天-扣33) = 165');
+
+  // 全校报表应含「餐费合计」汇总工作表（序号/班级/金额/备注 + 合计行）
+  const summary = sheets.find((s) => s.type === 'summary');
+  assert(summary && summary.title === '餐费合计', '全校报表含「餐费合计」汇总工作表');
+  const grand = summary.rows.reduce((a, b) => a + b.amount, 0);
+  assert(Math.round(grand * 100) / 100 === 1270, '汇总表总额 = 1270 (766+504)');
+  assert(summary.rows.length === 2 && summary.rows[0].seq === 1 && summary.rows[1].name === '一年级2班',
+    '汇总表含序号/班级两列且逐班列出');
 }
 
 /* ---------- 2) D1 集成：首启播种 / 密码 / 增删 / 导出 ---------- */
@@ -186,8 +194,46 @@ async function testD1() {
   assert(r.data.days[cls1.id + '|' + month] === 18, '天数已持久化');
 }
 
+/* ---------- 3) 一键清空班级学生（deleteByClass，密码保护） ---------- */
+
+async function testDeleteByClass() {
+  console.log('\n[3] 一键清空班级学生 (deleteByClass)');
+  const env = new MockD1();
+  await call(env, 'GET', '/api/state'); // 播种 27 班
+  const st = (await call(env, 'GET', '/api/state')).data;
+  const cls1 = st.classes.find((c) => c.name === '一年级1班');
+  const cls2 = st.classes.find((c) => c.name === '一年级2班');
+  await call(env, 'POST', '/api/students/add', { classId: cls1.id, name: '甲', idCard: makeValidId('11010119900307051') });
+  await call(env, 'POST', '/api/students/add', { classId: cls1.id, name: '乙', idCard: makeValidId('11010119900307052') });
+  await call(env, 'POST', '/api/students/add', { classId: cls2.id, name: '丙', idCard: makeValidId('11010119900307053') });
+  const month = st.currentMonth;
+  await call(env, 'POST', '/api/days/set', { month, days: 18, classIds: [cls1.id], password: 'admin' });
+  const stA = (await call(env, 'GET', '/api/state')).data.students.find((s) => s.name === '甲');
+  await call(env, 'POST', '/api/records/cell', { month, studentId: stA.id, field: 'standard', value: 'BL' });
+
+  // 错误密码应被拒
+  let r = await call(env, 'POST', '/api/students/deleteByClass', { classId: cls1.id, password: 'wrong' });
+  assert(r.status === 403, '错误密码清空班级被拒 (403)');
+
+  // 正确密码清空
+  r = await call(env, 'POST', '/api/students/deleteByClass', { classId: cls1.id, password: 'admin' });
+  assert(r.status === 200 && r.data.ok && r.data.removed === 2, '清空一年级1班成功，删除 2 名学生 (实得 ' + (r.data && r.data.removed) + ')');
+
+  // 验证：cls1 无学生，cls2 仍有「丙」，且甲就餐记录随之删除
+  const after = (await call(env, 'GET', '/api/state')).data;
+  const cls1Stu = after.students.filter((s) => s.classId === cls1.id);
+  const cls2Stu = after.students.filter((s) => s.classId === cls2.id);
+  assert(cls1Stu.length === 0, '一年级1班已无学生');
+  assert(cls2Stu.length === 1 && cls2Stu[0].name === '丙', '一年级2班学生不受影响');
+
+  // 重新导出全校 xlsx，cls1 工作表应为空模板（无数据行）
+  const xr = await call(env, 'GET', '/api/export/xlsx?month=' + month + '&scope=all');
+  assert(xr.status === 200 && xr.data._buf && xr.data._buf.slice(0, 2).toString() === 'PK', '清空后全校 xlsx 仍正常导出(OOML zip)');
+}
+
 /* ---------- 运行 ---------- */
 
 testFeeMath();
 await testD1();
+await testDeleteByClass();
 console.log('\n自测完成。' + (process.exitCode ? ' ❌ 存在失败用例' : ' ✅ 全部通过'));
