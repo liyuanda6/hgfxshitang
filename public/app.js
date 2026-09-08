@@ -343,6 +343,7 @@ function renderRegister() {
     $('#btnExportClass').hidden = true;
     $('#btnBackClasses').hidden = true;
     $('#btnClearClassStudents').hidden = true;
+    $('#btnAddStudentReg').hidden = true;
     emptyBox.hidden = true;
     foot.innerHTML = '';
     return;
@@ -352,6 +353,7 @@ function renderRegister() {
   $('#btnExportClass').hidden = false;
   $('#btnBackClasses').hidden = false;
   $('#btnClearClassStudents').hidden = false;
+  $('#btnAddStudentReg').hidden = false;
   wrap.hidden = false;
   emptyBox.hidden = true;
   foot.innerHTML = '';
@@ -370,14 +372,20 @@ function renderRegister() {
       '<tr data-sid="' + st.id + '">' +
       '<td class="c-idx">' + (i + 1) + '</td>' +
       '<td class="c-name" data-label="姓名">' + escapeHtml(st.name) + '</td>' +
-      '<td class="c-id" data-label="身份证号">' + escapeHtml(st.idCard) + '</td>' +
+      '<td class="c-act reg-act" data-label="操作">' +
+      '<button class="btn-link" data-act="edit" data-sid="' + st.id + '">编辑</button>' +
+      '<button class="btn-link danger" data-act="del" data-sid="' + st.id + '">删除</button>' +
+      '</td>' +
+      '<td class="c-id" data-label="身份证号">' + spanVal(escapeHtml(st.idCard || '—')) + (st.idCard ? idBadgeHtml(st.idCard) : '') + '</td>' +
       '<td class="c-days days-cell' + (r.days === 0 ? ' days-unset' : '') + '" data-label="应就餐天数">' + spanVal(r.days + ' 天') + '</td>' +
       '<td class="c-std" data-label="用餐标准"><select class="row-select" data-f="standard">' +
       S.standards.map((s) => '<option value="' + s.key + '"' + (s.key === r.standard ? ' selected' : '') + '>' + s.label + '</option>').join('') +
       '</select></td>' +
       '<td class="c-fee num js-daily" data-label="每日餐费"><span class="cell-val fee-val">' + fmt(r.dailyFee) + '</span></td>' +
-      '<td class="c-remark" data-label="备注"><input class="row-input remark" data-f="remark" maxlength="200" value="' + escapeHtml(r.remark) + '" placeholder="如：请假 / 病假 / 外出"></td>' +
-      '<td class="c-deduct" data-label="应扣除费用"><input class="row-input deduct" data-f="deduction" type="number" min="0" step="0.01" value="' + (r.deduction || 0) + '"></td>' +
+      '<td class="c-remark" data-label="备注"><div class="hl-box hl-remark"><div class="hl-box-title">备注</div>' +
+      '<input class="row-input remark" data-f="remark" maxlength="200" value="' + escapeHtml(r.remark) + '" placeholder="如：请假 / 病假 / 外出"></div></td>' +
+      '<td class="c-deduct" data-label="应扣除费用"><div class="hl-box hl-deduct"><div class="hl-box-title">应扣除费用</div>' +
+      '<div class="hl-box-input"><input class="row-input deduct" data-f="deduction" type="number" min="0" step="0.01" value="' + (r.deduction || 0) + '"><span class="unit">元</span></div></div></td>' +
       '<td class="c-total num js-total" data-label="总费用">' + spanVal(fmt(r.total)) + '</td>' +
       '<td class="c-real js-real' + (r.real <= 0 ? ' real-zero' : ' main-fee') + '" data-label="当月真实费用">' + spanVal(fmt(r.real)) + '</td>' +
       '</tr>'
@@ -385,6 +393,7 @@ function renderRegister() {
   }).join('');
 
   bindRowEditors(body);
+  bindRowActions(body);
   updateRegisterFoot();
 }
 
@@ -417,6 +426,15 @@ function bindRowEditors(body) {
     if (el.tagName === 'INPUT') {
       el.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.blur(); });
     }
+  });
+}
+
+function bindRowActions(body) {
+  body.querySelectorAll('[data-act="edit"]').forEach((b) => {
+    b.addEventListener('click', () => onEditStudent(b.dataset.sid));
+  });
+  body.querySelectorAll('[data-act="del"]').forEach((b) => {
+    b.addEventListener('click', () => onDeleteStudent(b.dataset.sid));
   });
 }
 
@@ -785,6 +803,40 @@ async function onDeleteStudent(sid) {
   }
 }
 
+/* 就餐登记页：快速增加学生（弹出登记框，默认归入当前班级） */
+async function onAddStudentFromRegister() {
+  if (!currentClassId) { toast('请先选择班级', 'warn'); return; }
+  const opts = S.classes.map((c) => '<option value="' + c.id + '"' + (c.id === currentClassId ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>').join('');
+  const r = await openModal({
+    title: '增加学生',
+    icon: '＋ ',
+    okText: '添加',
+    body:
+      '<div class="field"><span>姓名</span><input class="pwd-input" id="__n" maxlength="30" placeholder="学生姓名" autocomplete="off"></div>' +
+      '<div class="field" style="margin-top:10px"><span>身份证号（可留空）</span><input class="pwd-input" id="__i" maxlength="18" placeholder="18 位身份证号" autocomplete="off"></div>' +
+      '<div class="field" style="margin-top:10px"><span>所属班级</span><select class="pwd-input" id="__c">' + opts + '</select></div>' +
+      '<div class="card-sub" style="padding-top:10px">身份证号可留空：留空或校验不过都会照常保存并标记为「待确认」，可后期在编辑中修改。</div>',
+    onOk: async (bodyEl, markError) => {
+      const name = bodyEl.querySelector('#__n').value.trim();
+      if (!name) { markError('请输入学生姓名'); return false; }
+      try {
+        return await api('/api/students/add', {
+          name: name,
+          idCard: bodyEl.querySelector('#__i').value.trim(),
+          classId: bodyEl.querySelector('#__c').value
+        });
+      } catch (e) { markError(e.message); return false; }
+    }
+  });
+  if (r) {
+    await refresh();
+    const stt = r.student ? idStatusOf(r.student.idCard) : 'ok';
+    if (stt === 'pending') toast('学生「' + r.student.name + '」已添加（身份证号待确认，请核对）', 'warn');
+    else if (stt === 'empty') toast('学生「' + r.student.name + '」已添加（身份证号未填，可稍后补充）', 'ok');
+    else toast('学生「' + r.student.name + '」已添加', 'ok');
+  }
+}
+
 /* ---------- 导入 ---------- */
 function readFileText(file) {
   return new Promise((resolve, reject) => {
@@ -1045,6 +1097,11 @@ function bindEvents() {
   $('#btnClearClassStudents').addEventListener('click', () => {
     if (!currentClassId) { toast('请先选择班级', 'warn'); return; }
     onDeleteClassStudents(currentClassId);
+  });
+
+  $('#btnAddStudentReg').addEventListener('click', () => {
+    if (!currentClassId) { toast('请先选择班级', 'warn'); return; }
+    onAddStudentFromRegister();
   });
 
   $('#btnExportAll').addEventListener('click', () => {

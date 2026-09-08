@@ -1,128 +1,131 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<html lang="zh-CN" data-page-node-id="W4XnJdsduBcuSA3yN66Aqp">
+<head data-page-node-id="Lh7Kmalc9KqL4XEDFjFe36">
+<meta charset="UTF-8" data-page-node-id="F14U6TFHSlNiqhq5gGPX6h">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="EJFgsqq749Zpb92dL4hB3y">
 <title>班级就餐统计系统</title>
-<link rel="stylesheet" href="/styles.css?v=2">
+<link rel="stylesheet" href="/styles.css?v=2" data-page-node-id="fAKvx2vxYFZ6GhOVoqPFkA">
 </head>
-<body>
+<body data-page-node-id="edbFLQ1jBpF4l3IOBo7IkI">
 
-<div class="app">
+<div class="app" data-page-node-id="2qsV7LRQNTwZPdw9Pi2aW8">
   <!-- ============ 侧边栏 ============ -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-logo">餐</div>
-      <div class="brand-text">
-        <div class="brand-title">就餐统计系统</div>
-        <div class="brand-sub">班级 · 月度费用管理</div>
+  <aside class="sidebar" data-page-node-id="MSeWtTlHgVmvEWMfWa8SAL">
+    <div class="brand" data-page-node-id="DgpLemOnA4SNpnixJvmBci">
+      <div class="brand-logo" data-page-node-id="GREnn7HqkOdMoj9o5mzz1X">餐</div>
+      <div class="brand-text" data-page-node-id="9fArYRhzYQ9Zsk3AMbpxdJ">
+        <div class="brand-title" data-page-node-id="1vHl8JoMJf61FHRH4RbanU">就餐统计系统</div>
+        <div class="brand-sub" data-page-node-id="mlSeGWGPhH6BESxD5hxEga">班级 · 月度费用管理</div>
       </div>
     </div>
 
-    <nav class="nav" id="nav">
-      <button class="nav-item active" data-page="register"><span class="ni">🍚</span><span data-short="登记">就餐登记</span></button>
-      <button class="nav-item" data-page="students"><span class="ni">🧑‍🎓</span><span data-short="学生">学生管理</span></button>
-      <button class="nav-item" data-page="report"><span class="ni">📊</span><span data-short="统计">统计报表</span></button>
-      <button class="nav-item" data-page="settings"><span class="ni">⚙️</span><span data-short="设置">系统设置</span></button>
+    <nav class="nav" id="nav" data-page-node-id="0DxnTkOTya47e12bWbzHzh">
+      <button class="nav-item active" data-page="register" data-page-node-id="a1eMTAFAVlMx2cwsYnrZdW"><span class="ni" data-page-node-id="zO3lCVJFylFa1JTe0ztoLM">🍚</span><span data-short="登记" data-page-node-id="BRyuEOzv9z4eZ6Qbo9I0pX">就餐登记</span></button>
+      <button class="nav-item" data-page="students" data-page-node-id="pM2wy6jGPMhelMgjzJGaZg"><span class="ni" data-page-node-id="wDE1HpPKr6c6Pmu3E2eJrU">🧑‍🎓</span><span data-short="学生" data-page-node-id="DuvWFi7ylhm1Q8lInpcgRD">学生管理</span></button>
+      <button class="nav-item" data-page="report" data-page-node-id="GoBHMYvCFZmCNvONhMMGr7"><span class="ni" data-page-node-id="oHYQ3hzjdFzALEX5amIuzs">📊</span><span data-short="统计" data-page-node-id="gJcEx2VAppRHASHHWGpxzz">统计报表</span></button>
+      <button class="nav-item" data-page="settings" data-page-node-id="352wVRqEzYJrt3OsKyeCQu"><span class="ni" data-page-node-id="1NElLU5mH4aks3Ow37TtjB">⚙️</span><span data-short="设置" data-page-node-id="WQmD0Nx3GLxIO5SRauR6X3">系统设置</span></button>
     </nav>
 
-    <div class="sidebar-foot">
-      <div class="sf-row"><span>数据文件</span><b>data/data.json</b></div>
-      <div class="sf-row"><span>服务端口</span><b id="footPort">3000</b></div>
-      <div class="sf-tip">数据自动保存，建议定期备份 data 目录</div>
+    <div class="sidebar-foot" data-page-node-id="cXWTYvvxoiwTLbCB0c86zn">
+      <div class="sf-row" data-page-node-id="oQT58Jy4rorrX6p1v7hO5c"><span data-page-node-id="ka8xyauwpxFqMl91VC8mMY">数据文件</span><b data-page-node-id="B91v4npI2A4Hlbk6RL7iIs">data/data.json</b></div>
+      <div class="sf-row" data-page-node-id="PvvMxBb2iqHluKJetBkFyC"><span data-page-node-id="3FChkLbXhMtUzqP2WAjKTZ">服务端口</span><b id="footPort" data-page-node-id="vvNncyQBRZJz2rTKLjlVEQ">3000</b></div>
+      <div class="sf-tip" data-page-node-id="W6mZSpESFNwyBgV2T310mX">数据自动保存，建议定期备份 data 目录</div>
     </div>
   </aside>
 
   <!-- ============ 主区域 ============ -->
-  <main class="main">
-    <header class="topbar">
-      <div>
-        <h1 class="page-title" id="pageTitle">就餐登记</h1>
-        <p class="page-desc" id="pageDesc">按班级、按月登记学生用餐标准与备注，费用自动计算</p>
+  <main class="main" data-page-node-id="smZGJVRkVpuknvZh85IxsJ">
+    <header class="topbar" data-page-node-id="Maxsaj0PDGhoEhwZhWtkqf">
+      <div data-page-node-id="Y8XPYpEn6PlG9HgQy7eTkY">
+        <h1 class="page-title" id="pageTitle" data-page-node-id="b8f4HZtiBN9PxeWILbvVmj">就餐登记</h1>
+        <p class="page-desc" id="pageDesc" data-page-node-id="QyV2KbbHMH0vVIi5mqO4L9">按班级、按月登记学生用餐标准与备注，费用自动计算</p>
       </div>
-      <div class="month-box" id="monthBox">
-        <label class="month-label">统计月份</label>
-        <input type="month" id="monthInput" class="month-input">
-        <div class="month-chips" id="monthChips"></div>
+      <div class="month-box" id="monthBox" data-page-node-id="9jnxbKGcKkuUifUo0AaOse">
+        <label class="month-label" data-page-node-id="0DiTdjF6ZzgrUNmGiEwpxq">统计月份</label>
+        <input type="month" id="monthInput" class="month-input" data-page-node-id="DZYcBy91dRS8HSQrrpYV5l">
+        <div class="month-chips" id="monthChips" data-page-node-id="jU4EeAkyLPKgKuwNcYOVFd"></div>
       </div>
     </header>
 
-    <div class="content">
+    <div class="content" data-page-node-id="sNJahyo1UK4kFCngkpAllo">
 
       <!-- ========== 就餐登记 ========== -->
-      <section class="page active" id="page-register">
-        <div class="card">
-          <div class="card-head">
-            <div class="head-left">
-              <div class="meta-line" id="regMonthLabel"></div>
+      <section class="page active" id="page-register" data-page-node-id="2D7QFdXYuxsGDxKxTRca3N">
+        <div class="card" data-page-node-id="lZV1nIhnUkuWPk85Ag28AN">
+          <div class="card-head" data-page-node-id="qGnySWZqu06Zo9VMqroRET">
+            <div class="head-left" data-page-node-id="qAB1rVPIOSYj2X2vrgerBv">
+              <div class="meta-line" id="regMonthLabel" data-page-node-id="aPQLCYKao5mjkqD5xFsahN"></div>
             </div>
-            <div class="head-right">
-              <button class="btn btn-ghost" id="btnBackClasses" hidden>← 返回班级选择</button>
-              <button class="btn btn-ghost" id="btnReload">↻ 刷新</button>
-              <button class="btn btn-danger" id="btnClearClassStudents" hidden>🗑 清空本班学生</button>
-              <button class="btn btn-primary" id="btnExportClass" hidden>⬇ 导出本班餐费核对表</button>
+            <div class="head-right" data-page-node-id="N5KDFPQczzbcjfhfs61WHG">
+              <button class="btn btn-ghost" id="btnBackClasses" hidden data-page-node-id="RDcWTYvk0zASMGIN0OLtuO">← 返回班级选择</button>
+              <button class="btn btn-ghost" id="btnReload" data-page-node-id="uyuCTRhClbUHforEOjjGtG">↻ 刷新</button>
+              <button class="btn btn-danger" id="btnClearClassStudents" hidden data-page-node-id="fVv3JVlnJdsx5mmY084yqX">🗑 清空本班学生</button>
+              <button class="btn btn-primary" id="btnExportClass" hidden data-page-node-id="ZTWNZdSmQb4feqAPJvITy5">⬇ 导出本班餐费核对表</button>
+              <button class="btn btn-success" id="btnAddStudentReg" hidden data-page-node-id="regAddStu">＋ 增加学生</button>
             </div>
           </div>
 
-          <div class="class-grid-wrap">
-            <div class="class-grid" id="regClassGrid"></div>
-            <div class="empty" id="regGridEmpty" hidden>还没有班级，请到「系统设置」中创建班级。</div>
+          <div class="class-grid-wrap" data-page-node-id="D3PpqZle2TXqULroi8vIBK">
+            <div class="class-grid" id="regClassGrid" data-page-node-id="J2HFrEhRWjtyiJgYngC4Hf"></div>
+            <div class="empty" id="regGridEmpty" hidden data-page-node-id="L5CVavFWDebKw6h2R9cXr5">还没有班级，请到「系统设置」中创建班级。</div>
           </div>
 
-          <div class="table-wrap" id="regTableWrap" hidden>
-            <table class="table" id="regTable">
-              <thead>
-                <tr>
-                  <th class="c-idx">序号</th>
-                  <th class="c-name">姓名</th>
-                  <th class="c-id">身份证号</th>
-                  <th class="c-days">本月应就餐天数</th>
-                  <th class="c-std">用餐标准</th>
-                  <th class="c-fee">每日餐费</th>
-                  <th class="c-remark">备注</th>
-                  <th class="c-deduct">应扣除费用</th>
-                  <th class="c-total">总费用</th>
-                  <th class="c-real">当月真实费用</th>
+          <div class="table-wrap" id="regTableWrap" hidden data-page-node-id="rNMD8aHHkXE3gSR7hqPu6n">
+            <table class="table" id="regTable" data-page-node-id="0sAkgxH4Qc47VyARhgYedd">
+              <thead data-page-node-id="9Qk1CSAcnjEHgY2KKdHGpK">
+                <tr data-page-node-id="ZHfkKtYGkpogBU9gGKACPv">
+                  <th class="c-idx" data-page-node-id="Knjmc19ro9eQyebsKUgwmC">序号</th>
+                  <th class="c-name" data-page-node-id="6G73xQMM35SXwTCjALEM7G">姓名</th>
+                  <th class="c-act" data-page-node-id="regActHdr">操作</th>
+                  <th class="c-id" data-page-node-id="HjDe6sh8YEuP8s6CvY2iXZ">身份证号</th>
+                  <th class="c-days" data-page-node-id="ZdUEelESOfbAn2GFmwXKlW">本月应就餐天数</th>
+                  <th class="c-std" data-page-node-id="Fth8op1EEg4Uvz0eNfDwl6">用餐标准</th>
+                  <th class="c-fee" data-page-node-id="pTIx5ibUAxjEBiDyIa4M48">每日餐费</th>
+                  <th class="c-remark" data-page-node-id="u6gpDrkihrDkOpaPeM2vZ8">备注</th>
+                  <th class="c-deduct" data-page-node-id="Kp2ovTGCmd5lvBOLh1koFP">应扣除费用</th>
+                  <th class="c-total" data-page-node-id="ZzJhXMXKCYan9Dncc3MCYd">总费用</th>
+                  <th class="c-real" data-page-node-id="lZziyxBiJYTVF2az0TbplE">当月真实费用</th>
                 </tr>
               </thead>
-              <tbody id="regBody"></tbody>
-              <tfoot id="regFoot"></tfoot>
+              <tbody id="regBody" data-page-node-id="AFqroGQF9aYHRSDV1uB8Ju"></tbody>
+              <tfoot id="regFoot" data-page-node-id="ZBp7VX14Gwb04XGcCiwr4B"></tfoot>
             </table>
           </div>
-          <div class="empty" id="regEmpty" hidden></div>
+          <div class="empty" id="regEmpty" hidden data-page-node-id="HI3ZwWMOsuLgGdmYMvZvbA"></div>
         </div>
 
-        <div class="hint-card">
-          <b>使用提示</b>
-          <ul>
-            <li>「用餐标准」「备注」「应扣除费用」支持行内直接修改，<b>鼠标移开即自动保存</b>。</li>
-            <li>「本月应就餐天数」由管理员在 <b>系统设置 → 班级管理</b> 中设置（需管理密码），此处只读。</li>
-            <li>计算公式：总费用 = 应就餐天数 × 每日餐费；当月真实费用 = 总费用 − 应扣除费用（<b>不会为负数</b>）。</li>
-            <li>当月真实费用 ≤ 0 时会<span class="danger-text">标红提示</span>，请核对备注与扣除项。</li>
+        <div class="hint-card" data-page-node-id="frhQF6lPp20I4GjCXBI6LB">
+          <b data-page-node-id="MayKXldsrwl4F9QM2L4L1K">使用提示</b>
+          <ul data-page-node-id="QIHxW3aqM8qp5iBYvoSeOd">
+            <li data-page-node-id="YiVY3Mhp5UFD4ZENGZnzAy">「用餐标准」「备注」「应扣除费用」支持行内直接修改，<b data-page-node-id="ilR5rY6lclctTRRJtBaDuF">鼠标移开即自动保存</b>。</li>
+            <li data-page-node-id="sOx9ZMAQUPtxzCyAZll7yv">「本月应就餐天数」由管理员在 <b data-page-node-id="6eZNBkGVY1RfPpketSB3mR">系统设置 → 班级管理</b> 中设置（需管理密码），此处只读。</li>
+            <li data-page-node-id="WH4mhEBEbjwJlgVgo3q1vv">计算公式：总费用 = 应就餐天数 × 每日餐费；当月真实费用 = 总费用 − 应扣除费用（<b data-page-node-id="3Jh4N2yc3KVMnikFxS2KH3">不会为负数</b>）。</li>
+            <li data-page-node-id="CA9t6AC7854wkQtKbkMDo4">当月真实费用 ≤ 0 时会<span class="danger-text" data-page-node-id="ndpmMUJZyAR8TjngdOTer2">标红提示</span>，请核对备注与扣除项。</li>
+            <li data-page-node-id="regHintAct">进入班级后，可在学生<b data-page-node-id="regHintAct2">姓名旁直接「编辑 / 删除」</b>该生信息；点击右上角「增加学生」可快速登记新学生（均需二次确认 / 密码）。</li>
           </ul>
         </div>
       </section>
 
       <!-- ========== 学生管理 ========== -->
-      <section class="page" id="page-students">
-        <div class="card">
-          <div class="card-title">单个新增学生</div>
-          <div class="form-row">
-            <label class="field"><span>姓名</span><input id="stName" class="input" placeholder="学生姓名" maxlength="30"></label>
-            <label class="field"><span>身份证号</span><input id="stIdCard" class="input" placeholder="18 位身份证号" maxlength="18"></label>
-            <label class="field"><span>所属班级</span><select id="stClass" class="select"></select></label>
-            <button class="btn btn-primary" id="btnAddStudent">＋ 新增学生</button>
+      <section class="page" id="page-students" data-page-node-id="nIXc8P3KU9qdXUVXA5Ae5q">
+        <div class="card" data-page-node-id="vYkZd5hueF8v53p4W5QfUX">
+          <div class="card-title" data-page-node-id="5a1jXtDihCiAKTOsE0eOOV">单个新增学生</div>
+          <div class="form-row" data-page-node-id="GTDEmiUncu5CAnzo4jPa7r">
+            <label class="field" data-page-node-id="RRjxwhzjKQ7ydLBj4OjS8B"><span data-page-node-id="CXunw4eHi5iky9GmyJQy2d">姓名</span><input id="stName" class="input" placeholder="学生姓名" maxlength="30" data-page-node-id="ELUtCtJkzcrTTmqSnF3qGY"></label>
+            <label class="field" data-page-node-id="VPkLJWJ7RN8uicNmJhQRYB"><span data-page-node-id="zlOkxNvDiUNwbNxwDKux2l">身份证号</span><input id="stIdCard" class="input" placeholder="18 位身份证号" maxlength="18" data-page-node-id="0Lh5lOPqFmAkTfVHGeaSxd"></label>
+            <label class="field" data-page-node-id="NPgDac6EOfcaObGSnNzUja"><span data-page-node-id="rjkW7OGUBN7Ilb0DycjjYB">所属班级</span><select id="stClass" class="select" data-page-node-id="RaFEto8DlN3s8r6EBZZDnq"></select></label>
+            <button class="btn btn-primary" id="btnAddStudent" data-page-node-id="x04vwGU1KE2fA4EjXTCwiS">＋ 新增学生</button>
           </div>
-          <div class="card-sub">身份证号<b>可留空</b>：留空或填写但校验不过都会照常保存并标记为「待确认」，可在学生管理中随时修改。新增学生默认用餐标准为「早餐+中餐」，可在就餐登记页调整。</div>
+          <div class="card-sub" data-page-node-id="Mc619bkuWQfYCFSSkanKXY">身份证号<b data-page-node-id="ryjYGflfQBEM4jSGTbGTdI">可留空</b>：留空或填写但校验不过都会照常保存并标记为「待确认」，可在学生管理中随时修改。新增学生默认用餐标准为「早餐+中餐」，可在就餐登记页调整。</div>
         </div>
 
-        <div class="card">
-          <div class="card-title">批量导入学生</div>
-          <div class="form-row">
-            <label class="field"><span>导入到班级</span><select id="impClass" class="select"></select></label>
-            <button class="btn btn-ghost" id="btnPickFile">📁 选择 .csv / .txt 文件</button>
-            <input type="file" id="fileInput" accept=".csv,.txt,.tsv" hidden>
-            <span class="file-name" id="fileName">未选择文件</span>
+        <div class="card" data-page-node-id="DFY2v1DDUxO6VmCBFVMJVb">
+          <div class="card-title" data-page-node-id="wYmmH2uKQLIqKZMlzJd5F7">批量导入学生</div>
+          <div class="form-row" data-page-node-id="GotiYMUuuDVcKOprvkrZaz">
+            <label class="field" data-page-node-id="eKWLfuXRrFmkpRvY4KY3CU"><span data-page-node-id="xgQEgEqS5FxbtqVUc5gAfV">导入到班级</span><select id="impClass" class="select" data-page-node-id="l4w5DuVN4hQkJ3jMcQyYTa"></select></label>
+            <button class="btn btn-ghost" id="btnPickFile" data-page-node-id="7fuosLXSTqG6CxzH1GWPsD">📁 选择 .csv / .txt 文件</button>
+            <input type="file" id="fileInput" accept=".csv,.txt,.tsv" hidden data-page-node-id="4bPqkjHaF6Z4MEGdBF30w3">
+            <span class="file-name" id="fileName" data-page-node-id="bJDxbBAdQ62gDx8HQpIKdK">未选择文件</span>
           </div>
           <textarea id="impText" class="textarea" rows="7" placeholder="每行一名学生，格式为「姓名，身份证号」。
 分隔符支持：逗号、中文逗号、顿号、分号、空格、制表符。
@@ -131,173 +134,173 @@
 张三，110101201501011234
 李四 110101201502022345
 王五	110101201503033456"></textarea>
-          <div class="form-row form-row-end">
-            <button class="btn btn-ghost" id="btnClearImport">清空</button>
-            <button class="btn btn-primary" id="btnImport">⬆ 开始导入</button>
+          <div class="form-row form-row-end" data-page-node-id="qZC14MztpC2Hva7Vso21Cm">
+            <button class="btn btn-ghost" id="btnClearImport" data-page-node-id="z7oeYzEITUhKftk3tw5CTn">清空</button>
+            <button class="btn btn-primary" id="btnImport" data-page-node-id="DgGhfS9Wi6sg1iuHsSbb8h">⬆ 开始导入</button>
           </div>
-          <div class="card-sub">导入时将自动清洗首尾空格、字母统一大写、按身份证号<b>去重</b>。身份证号<b>可留空或暂不通过校验</b>——这类学生将标记为「待确认」，可稍后在学生管理中修正。</div>
-          <div id="importResult" class="import-result" hidden></div>
+          <div class="card-sub" data-page-node-id="5MRCbPxEPtvBGNBPlkGnuW">导入时将自动清洗首尾空格、字母统一大写、按身份证号<b data-page-node-id="hNTlgM6PHh9orb3Wl6UTzk">去重</b>。身份证号<b data-page-node-id="LUNXC30bQSZqKsDmaGUkEX">可留空或暂不通过校验</b>——这类学生将标记为「待确认」，可稍后在学生管理中修正。</div>
+          <div id="importResult" class="import-result" hidden data-page-node-id="9oLG0x4DBhuSv2BSjUBXwG"></div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <div class="head-left">
-              <label class="field-inline"><span>筛选班级</span><select id="filterClass" class="select"></select></label>
-              <input id="searchInput" class="input input-sm" placeholder="搜索姓名或身份证号">
+        <div class="card" data-page-node-id="eg9tqpiSvzND79mZIXuP3H">
+          <div class="card-head" data-page-node-id="C1FesNiTKCyQGQQbBGDQKx">
+            <div class="head-left" data-page-node-id="bn346DIsAsMC2MRTAbuo4z">
+              <label class="field-inline" data-page-node-id="yDAlG48g9cnfC9TSqDmTwA"><span data-page-node-id="XajuEDic1kyMiBfBBsA184">筛选班级</span><select id="filterClass" class="select" data-page-node-id="I2YSmp2NMOAjkCRBI1Rr69"></select></label>
+              <input id="searchInput" class="input input-sm" placeholder="搜索姓名或身份证号" data-page-node-id="HHTu6QfBTADH69qML9aYt3">
             </div>
-            <div class="head-right"><span class="count-badge" id="stuCount"></span></div>
+            <div class="head-right" data-page-node-id="lEq6TdfUtODJ2DyDGCfea9"><span class="count-badge" id="stuCount" data-page-node-id="IWw7OnigotGNvXt041sgn3"></span></div>
           </div>
-          <div class="table-wrap">
-            <table class="table" id="stuTable">
-              <thead>
-                <tr>
-                  <th class="c-idx">序号</th>
-                  <th class="c-name">姓名</th>
-                  <th class="c-id">身份证号</th>
-                  <th>所属班级</th>
-                  <th class="c-act">操作</th>
+          <div class="table-wrap" data-page-node-id="ezCcQ8aqLGVziN1Mjly4lr">
+            <table class="table" id="stuTable" data-page-node-id="7jN6WV5XRI8NFVWEFi4X8q">
+              <thead data-page-node-id="cGCQeZuHmKnZQjcE2J0kmW">
+                <tr data-page-node-id="bnHGU1LuTa7CgNxPAp7kXT">
+                  <th class="c-idx" data-page-node-id="C2RgdUBMJJHxap1AzeQSu0">序号</th>
+                  <th class="c-name" data-page-node-id="kXmL6ShJuLXNm825lclU5E">姓名</th>
+                  <th class="c-id" data-page-node-id="4ITMtraWB8Brac0QDrFZnD">身份证号</th>
+                  <th data-page-node-id="v0C4ZXYRsbJm7J3mIaxDlY">所属班级</th>
+                  <th class="c-act" data-page-node-id="l7wosUzpvidktZE0KJk4hu">操作</th>
                 </tr>
               </thead>
-              <tbody id="stuBody"></tbody>
+              <tbody id="stuBody" data-page-node-id="LPDqE6xS6q4nJCXmoPBkQz"></tbody>
             </table>
           </div>
-          <div class="empty" id="stuEmpty" hidden>暂无学生，请先新增班级后添加或导入学生。</div>
+          <div class="empty" id="stuEmpty" hidden data-page-node-id="6ltsaF7BiDVgRG842qAF9k">暂无学生，请先新增班级后添加或导入学生。</div>
         </div>
       </section>
 
       <!-- ========== 统计报表 ========== -->
-      <section class="page" id="page-report">
-        <div class="stat-grid">
-          <div class="stat-card"><div class="sc-label">班级数</div><div class="sc-value" id="sumClasses">0</div></div>
-          <div class="stat-card"><div class="sc-label">学生总数</div><div class="sc-value" id="sumStudents">0</div></div>
-          <div class="stat-card"><div class="sc-label">总费用合计</div><div class="sc-value" id="sumTotal">¥0.00</div></div>
-          <div class="stat-card"><div class="sc-label">应扣除合计</div><div class="sc-value sc-warn" id="sumDeduct">¥0.00</div></div>
-          <div class="stat-card stat-card-hl"><div class="sc-label">当月真实费用</div><div class="sc-value sc-main" id="sumReal">¥0.00</div></div>
+      <section class="page" id="page-report" data-page-node-id="HQcwFeoj2EudYbIeiAwt3k">
+        <div class="stat-grid" data-page-node-id="cSe9uc34C7qBGAPFpnFSIp">
+          <div class="stat-card" data-page-node-id="BnietFTvcfuW5y8HjiQCrE"><div class="sc-label" data-page-node-id="KYvRiaMR0HwKMcR7Z91DU3">班级数</div><div class="sc-value" id="sumClasses" data-page-node-id="GWqIP7O2ZOTeT80yC16AsG">0</div></div>
+          <div class="stat-card" data-page-node-id="pcqLfsCI0x28bVilDtnOFL"><div class="sc-label" data-page-node-id="IwaEWLXyTCMm3ylcGVtJtB">学生总数</div><div class="sc-value" id="sumStudents" data-page-node-id="5f7h0MohMsnq6iB5lXkYnL">0</div></div>
+          <div class="stat-card" data-page-node-id="WNVwZUM2AfapiWUbxzCSAP"><div class="sc-label" data-page-node-id="7gXF8steWqQMHJwnS9fcj2">总费用合计</div><div class="sc-value" id="sumTotal" data-page-node-id="pkdOHYLMh1N2wYLIA8iy0h">¥0.00</div></div>
+          <div class="stat-card" data-page-node-id="ADVIrcO03ssToGTMXOviW6"><div class="sc-label" data-page-node-id="CYWYlydIeEISAOLioaI3Bh">应扣除合计</div><div class="sc-value sc-warn" id="sumDeduct" data-page-node-id="V9Mgb66fCKhVoQSlikSQjz">¥0.00</div></div>
+          <div class="stat-card stat-card-hl" data-page-node-id="a6v3aLCQ8ODqshsknraIjM"><div class="sc-label" data-page-node-id="qFaYs3HFbGW5fRvQ9nY7hk">当月真实费用</div><div class="sc-value sc-main" id="sumReal" data-page-node-id="bldY7A8aDnTXg5tHqIsoeD">¥0.00</div></div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title no-mb">各用餐标准人数</div>
+        <div class="card" data-page-node-id="8OfgWXx5bgKsXqLfmWfg0h">
+          <div class="card-head" data-page-node-id="gPiiGsiRQ5aqrOWKLWAGav">
+            <div class="card-title no-mb" data-page-node-id="IBRHDbjZy27zZwsL92ZKPt">各用餐标准人数</div>
           </div>
-          <div class="std-grid" id="stdGrid"></div>
+          <div class="std-grid" id="stdGrid" data-page-node-id="Y6cXOLUVhAaOjSCBhY3Jf6"></div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title no-mb">按班级明细</div>
-            <div class="head-right">
-              <button class="btn btn-primary" id="btnExportAll">⬇ 导出全校餐费核对表</button>
+        <div class="card" data-page-node-id="xUVYBBGMW0CVqMlDlp9T68">
+          <div class="card-head" data-page-node-id="QkhPJm5JeOGpLIDiCDy327">
+            <div class="card-title no-mb" data-page-node-id="1FzOawxFctMi0ht7JhQF1X">按班级明细</div>
+            <div class="head-right" data-page-node-id="7S8q0PFllAnaKEA9AZaCkh">
+              <button class="btn btn-primary" id="btnExportAll" data-page-node-id="qPcUEYMia7kPXA5CYoFAuG">⬇ 导出全校餐费核对表</button>
             </div>
           </div>
-          <div class="table-wrap">
-            <table class="table" id="repTable">
-              <thead>
-                <tr>
-                  <th class="c-idx">序号</th>
-                  <th>班级</th>
-                  <th class="c-days">应就餐天数</th>
-                  <th class="c-num">学生人数</th>
-                  <th class="c-num">早餐+中餐</th>
-                  <th class="c-num">仅早餐</th>
-                  <th class="c-num">仅中餐</th>
-                  <th class="c-total">总费用</th>
-                  <th class="c-deduct">应扣除</th>
-                  <th class="c-real">当月真实费用</th>
+          <div class="table-wrap" data-page-node-id="IJpJVQP2arSAHnhViRL9IB">
+            <table class="table" id="repTable" data-page-node-id="TZCAgtZEXcnTA0Ug93EECo">
+              <thead data-page-node-id="JYeq6LnAw3tXbA0MJhoREE">
+                <tr data-page-node-id="MuirE6s6XJof1OiycSkPXy">
+                  <th class="c-idx" data-page-node-id="Ss1YqKqwL6DAHWrXPzNJMQ">序号</th>
+                  <th data-page-node-id="TCHmL1hsa6Xgbmvc9DOtBG">班级</th>
+                  <th class="c-days" data-page-node-id="M52vmPMC3okCRhFKyi8lm6">应就餐天数</th>
+                  <th class="c-num" data-page-node-id="rhQm1DXWv73ZRvP3r95Bp9">学生人数</th>
+                  <th class="c-num" data-page-node-id="PfOB7V265Gw16ERHhS76xA">早餐+中餐</th>
+                  <th class="c-num" data-page-node-id="gkldcXx4d4OXX6FGD6dPKE">仅早餐</th>
+                  <th class="c-num" data-page-node-id="gSxqY6xwk0ompoJ7eS8e7e">仅中餐</th>
+                  <th class="c-total" data-page-node-id="bMiOKw6avIUJg5jnAg0BE4">总费用</th>
+                  <th class="c-deduct" data-page-node-id="r2ETc0QXEEnFm8Roh0deAF">应扣除</th>
+                  <th class="c-real" data-page-node-id="lGUmmxztG361mHPABxOLyY">当月真实费用</th>
                 </tr>
               </thead>
-              <tbody id="repBody"></tbody>
-              <tfoot id="repFoot"></tfoot>
+              <tbody id="repBody" data-page-node-id="JXQHDV1EHV3SFM10ZArUmR"></tbody>
+              <tfoot id="repFoot" data-page-node-id="E15iFuT11qWEg5B9e8s1Jj"></tfoot>
             </table>
           </div>
-          <div class="empty" id="repEmpty" hidden>当前月份暂无数据。</div>
+          <div class="empty" id="repEmpty" hidden data-page-node-id="yswyHHPB47DyHLKshIY1ED">当前月份暂无数据。</div>
         </div>
       </section>
 
       <!-- ========== 系统设置 ========== -->
-      <section class="page" id="page-settings">
-        <div class="card">
-          <div class="card-title">餐费标准（全局参数）</div>
-          <div class="form-row">
-            <label class="field"><span>早餐价（元 / 天）</span><input id="priceBreakfast" class="input" type="number" min="0" step="0.01"></label>
-            <label class="field"><span>午餐价（元 / 天）</span><input id="priceLunch" class="input" type="number" min="0" step="0.01"></label>
-            <label class="field"><span>全天合计（自动）</span><input id="priceAll" class="input" disabled></label>
+      <section class="page" id="page-settings" data-page-node-id="hjnQjMTysM1DFnuGoHoQzy">
+        <div class="card" data-page-node-id="xBMsfLCdCNdIWpJhNN6EEQ">
+          <div class="card-title" data-page-node-id="bsPX8N1CLn4pJp6E13XqSE">餐费标准（全局参数）</div>
+          <div class="form-row" data-page-node-id="ZcdC31D6kgmnChP0OoK71R">
+            <label class="field" data-page-node-id="faAlvet2oA6BqUK8wc9Vss"><span data-page-node-id="1G8JiVOTMayWF6EjjcFPUK">早餐价（元 / 天）</span><input id="priceBreakfast" class="input" type="number" min="0" step="0.01" data-page-node-id="EgKlA7DtFueeytavqTa4uS"></label>
+            <label class="field" data-page-node-id="Njs1Gbq3qJSXNR5LtlNzO0"><span data-page-node-id="MU5x0gzRJkUgd8lML2xcQx">午餐价（元 / 天）</span><input id="priceLunch" class="input" type="number" min="0" step="0.01" data-page-node-id="iDOrKVNMO0ftYX9mDnQGwG"></label>
+            <label class="field" data-page-node-id="YBjsC1V9DNeSITBsglhoEy"><span data-page-node-id="cmByZDS1P34EcuSfrr5RuD">全天合计（自动）</span><input id="priceAll" class="input" disabled data-page-node-id="4Li9DMFvHroFOlyyc5IGw0"></label>
           </div>
-          <div class="form-row form-row-end">
-            <button class="btn btn-primary" id="btnSavePrice">💾 保存餐费设置（需密码）</button>
+          <div class="form-row form-row-end" data-page-node-id="k4E1YvxYITRrjEfsN5COtw">
+            <button class="btn btn-primary" id="btnSavePrice" data-page-node-id="bnGMRdCYo9Ce2yH0THg1xU">💾 保存餐费设置（需密码）</button>
           </div>
-          <div class="card-sub">修改后全校所有学生的每日餐费、总费用、真实费用将<b>立即重新计算</b>。</div>
+          <div class="card-sub" data-page-node-id="yh50LiF6vEeUcRAezniiEJ">修改后全校所有学生的每日餐费、总费用、真实费用将<b data-page-node-id="ONXVZzW5Ds2vOGdE9J4Km4">立即重新计算</b>。</div>
         </div>
 
-        <div class="card">
-          <div class="card-title">修改管理密码</div>
-          <div class="form-row">
-            <label class="field"><span>当前密码</span><input id="pwdOld" class="input" type="password" autocomplete="current-password"></label>
-            <label class="field"><span>新密码（至少 6 位）</span><input id="pwdNew" class="input" type="password" autocomplete="new-password"></label>
-            <label class="field"><span>确认新密码</span><input id="pwdNew2" class="input" type="password" autocomplete="new-password"></label>
+        <div class="card" data-page-node-id="eDjh7rsAc1BKmsUM4ct1Ny">
+          <div class="card-title" data-page-node-id="fKTJu6I7OFmHw27h4rSBgZ">修改管理密码</div>
+          <div class="form-row" data-page-node-id="6bNUzSNhvFis8S0oYVR7La">
+            <label class="field" data-page-node-id="K5OmL2pPpcpKU7TZEUxmmV"><span data-page-node-id="DfejIp35c8LDuQssUKuSFS">当前密码</span><input id="pwdOld" class="input" type="password" autocomplete="current-password" data-page-node-id="xu3IOS1BRgfexHmPfAupGv"></label>
+            <label class="field" data-page-node-id="vnrOg8eYRf5hzOdbnqITjf"><span data-page-node-id="E5ueWplEHE4RXXLoCNin8z">新密码（至少 6 位）</span><input id="pwdNew" class="input" type="password" autocomplete="new-password" data-page-node-id="ThRiRSVQaeVdYIi4Jpkp5k"></label>
+            <label class="field" data-page-node-id="Xlq0o5RooQ7IpIPGN43xJH"><span data-page-node-id="AZIUpSm6DZcy3jzP4OF88U">确认新密码</span><input id="pwdNew2" class="input" type="password" autocomplete="new-password" data-page-node-id="TCAPm2ILIJzpz8ucP2o4O9"></label>
           </div>
-          <div class="form-row form-row-end">
-            <button class="btn btn-primary" id="btnSavePwd">🔑 修改密码</button>
+          <div class="form-row form-row-end" data-page-node-id="A4mKG3wOXBarl52VYLxmFx">
+            <button class="btn btn-primary" id="btnSavePwd" data-page-node-id="q6hC7sNz7ZNcrBOSxS5YJ8">🔑 修改密码</button>
           </div>
-          <div class="card-sub">默认管理密码为 <code>admin</code>，部署后请立即修改。密码以哈希方式加密存储，不明文保存。</div>
+          <div class="card-sub" data-page-node-id="dxs8fBx0sxEVcUqGAjQK3m">默认管理密码为 <code data-page-node-id="7D2qCXzZJlAD2BqZwtxUMV">admin</code>，部署后请立即修改。密码以哈希方式加密存储，不明文保存。</div>
         </div>
 
-        <div class="card">
-        <div class="card">
-          <div class="card-title">班级管理</div>
-          <div class="card-head">
-            <div class="head-left">
-              <input id="newClassName" class="input" placeholder="输入新班级名称，如：一年级一班" maxlength="60">
-              <button class="btn btn-primary" id="btnAddClass">＋ 新增班级</button>
+        <div class="card" data-page-node-id="A0DCl9fn7ZHGzNoqz7fILT">
+        <div class="card" data-page-node-id="VvTLUYkk74oGf8Vzt8HRtF">
+          <div class="card-title" data-page-node-id="iwiPG5kNWs0D7IDjiXawDF">班级管理</div>
+          <div class="card-head" data-page-node-id="oxwHSG3sqvdk3TFbxHghjB">
+            <div class="head-left" data-page-node-id="hPSfd3vjZ5Ln4JX1vvbEuc">
+              <input id="newClassName" class="input" placeholder="输入新班级名称，如：一年级一班" maxlength="60" data-page-node-id="MoHFwj5l8IRKcKkXFtBe3x">
+              <button class="btn btn-primary" id="btnAddClass" data-page-node-id="FbWFVa8lIPCIqWhkeGZ4uq">＋ 新增班级</button>
             </div>
-            <div class="head-right">
-              <button class="btn btn-warn" id="btnBatchDays">🗓 批量设置本月应就餐天数</button>
+            <div class="head-right" data-page-node-id="iaEJnoPyyAFYR66KJaHxty">
+              <button class="btn btn-warn" id="btnBatchDays" data-page-node-id="VRBg7hEHSzVEm4q5mn3OHZ">🗓 批量设置本月应就餐天数</button>
             </div>
           </div>
-          <div class="card-sub" id="setClassMonthTip"></div>
-          <div class="table-wrap">
-            <table class="table" id="setClassTable">
-              <thead>
-                <tr>
-                  <th class="c-idx">序号</th>
-                  <th>班级名称</th>
-                  <th class="c-days">本月应就餐天数</th>
-                  <th class="c-num">学生人数</th>
-                  <th class="c-act">操作</th>
+          <div class="card-sub" id="setClassMonthTip" data-page-node-id="zWOeG4v6V0PcvUinHkuT5b"></div>
+          <div class="table-wrap" data-page-node-id="OQ6sKbSH3G3PxaMdeB6jmE">
+            <table class="table" id="setClassTable" data-page-node-id="YrBUhCF7O4QMJ8RSILp2t7">
+              <thead data-page-node-id="fm1ufH7Xx8LGMCLDaWEbvv">
+                <tr data-page-node-id="xvEKjaTuOUd1jCDo1ESQLu">
+                  <th class="c-idx" data-page-node-id="C3NsY9xRI7xdGGW3FxacZE">序号</th>
+                  <th data-page-node-id="HEhjkftr08S9IK0Batn0e0">班级名称</th>
+                  <th class="c-days" data-page-node-id="qAUJaILPUp1UXrotkbspHu">本月应就餐天数</th>
+                  <th class="c-num" data-page-node-id="mAfknVBmTwcStqBP8OML3E">学生人数</th>
+                  <th class="c-act" data-page-node-id="noaYVNlfVSTYapPAZa0lrP">操作</th>
                 </tr>
               </thead>
-              <tbody id="setClassBody"></tbody>
+              <tbody id="setClassBody" data-page-node-id="nED3UorYElgdhNE69cmPDZ"></tbody>
             </table>
           </div>
-          <div class="empty" id="setClassEmpty" hidden>还没有班级，请在上方输入名称后点击「新增班级」。</div>
+          <div class="empty" id="setClassEmpty" hidden data-page-node-id="eK4LPaQZcdoVkOuO8pN7YK">还没有班级，请在上方输入名称后点击「新增班级」。</div>
         </div>
 
-        <div class="card">
-          <div class="card-title">当前统计月份（统计周期）</div>
-          <div class="card-sub">班主任在「就餐登记」中只能登记该月份，无法自行更改；统计完成后由管理员在此一键切换。应就餐天数也按此月份保存。</div>
-          <div class="form-row">
-            <label class="field"><span>切换为月份</span><input id="statMonthInput" class="input" type="month"></label>
-            <button class="btn btn-primary" id="btnSetStatMonth">📅 设置为当前统计月份（需密码）</button>
+        <div class="card" data-page-node-id="jQHBXQqZ12TsDUdCjehUNE">
+          <div class="card-title" data-page-node-id="41ZwTeDsLRMhT6IGR5yPJD">当前统计月份（统计周期）</div>
+          <div class="card-sub" data-page-node-id="gXlflMZSGqzYlPgH8F5uHw">班主任在「就餐登记」中只能登记该月份，无法自行更改；统计完成后由管理员在此一键切换。应就餐天数也按此月份保存。</div>
+          <div class="form-row" data-page-node-id="C98zROQtHhNzMXa9aw5hGu">
+            <label class="field" data-page-node-id="DXspOksg9HVR06zDUd5rp0"><span data-page-node-id="FeNJ84S1DwelWv8adNRTAk">切换为月份</span><input id="statMonthInput" class="input" type="month" data-page-node-id="VIFGGGUHaR6hZTotMJJN8I"></label>
+            <button class="btn btn-primary" id="btnSetStatMonth" data-page-node-id="UfFCx17dKlBQyuShqQZCHj">📅 设置为当前统计月份（需密码）</button>
           </div>
-          <div class="card-sub" id="statMonthTip"></div>
+          <div class="card-sub" id="statMonthTip" data-page-node-id="D9AIzXB12Ynt2rtR6j40EQ"></div>
         </div>
 
-          <div class="card-title">数据与备份</div>
-          <div class="form-row">
-            <button class="btn btn-ghost" id="btnBackup">⬇ 下载数据备份（JSON）</button>
-            <button class="btn btn-ghost" id="btnClearMonth">🧹 清空当前月份登记数据</button>
+          <div class="card-title" data-page-node-id="UuPGE4j6wSvRZgs7muUe2N">数据与备份</div>
+          <div class="form-row" data-page-node-id="5RwRMmNuf1UoB7uBsNG4CH">
+            <button class="btn btn-ghost" id="btnBackup" data-page-node-id="U8nxBOk1VBnWrGB0C1lLS6">⬇ 下载数据备份（JSON）</button>
+            <button class="btn btn-ghost" id="btnClearMonth" data-page-node-id="LmkD8fYrnVdeNru5lLAiYE">🧹 清空当前月份登记数据</button>
           </div>
-          <div class="card-sub">
-            备份方式：直接复制服务目录下的 <code>data/data.json</code> 文件即可；服务每次写入前会自动生成 <code>data/data.json.bak</code>。
-            恢复时停止服务 → 用备份文件覆盖 <code>data.json</code> → 重新启动。
+          <div class="card-sub" data-page-node-id="mr5TuilifiUgZ6wuEHirxj">
+            备份方式：直接复制服务目录下的 <code data-page-node-id="W4SE1oQ9YXxPVEDyfo7Jrz">data/data.json</code> 文件即可；服务每次写入前会自动生成 <code data-page-node-id="A5ihGoDK6cxlxqB2lLLUHB">data/data.json.bak</code>。
+            恢复时停止服务 → 用备份文件覆盖 <code data-page-node-id="LHHuZestamkDxmJOnFY6Mf">data.json</code> → 重新启动。
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-title">关于</div>
-          <div class="about">
-            <p><b>班级就餐统计系统</b> · 纯 Node.js 实现，零第三方依赖，数据存于本地 JSON 文件。</p>
-            <p>启动命令：<code>node server.js</code>　默认端口：<code>3000</code>（可用环境变量 <code>PORT</code> 修改）</p>
-            <p>忘记密码：停止服务，删除 <code>data/data.json</code> 后重启即可恢复为默认密码 <code>admin</code>（会清空全部数据，请先备份）。</p>
+        <div class="card" data-page-node-id="YfDXudCAKJTbAitfYMjzil">
+          <div class="card-title" data-page-node-id="fMaopu0kTotZkJZmruejhb">关于</div>
+          <div class="about" data-page-node-id="QRmcuJB1ft5VGXt4NWH9PN">
+            <p data-page-node-id="AMfsuteaXg9YhwZF07Cqkk"><b data-page-node-id="qpMAE5IKIL0V24haFLxXSX">班级就餐统计系统</b> · 纯 Node.js 实现，零第三方依赖，数据存于本地 JSON 文件。</p>
+            <p data-page-node-id="LzZihGSlJgKhZKCsqHIe4A">启动命令：<code data-page-node-id="klvlspJqWpf8FFlEkH8Q2y">node server.js</code>　默认端口：<code data-page-node-id="ZHJIaqQNi3LOAZ1IBsEg9R">3000</code>（可用环境变量 <code data-page-node-id="S4a8HoGKiJtTMDyfF6j0kW">PORT</code> 修改）</p>
+            <p data-page-node-id="1CNkMML6fMptwqHA4xlrK8">忘记密码：停止服务，删除 <code data-page-node-id="pgabRImZ6ITvFZbvba48VQ">data/data.json</code> 后重启即可恢复为默认密码 <code data-page-node-id="pFcuFwHfaqIMRtkSJ2T4d0">admin</code>（会清空全部数据，请先备份）。</p>
           </div>
         </div>
       </section>
@@ -306,8 +309,8 @@
   </main>
 </div>
 
-<div id="modalRoot"></div>
-<div id="toastRoot" class="toast-root"></div>
+<div id="modalRoot" data-page-node-id="wUECZiVbcIgT1OIXEXlGWx"></div>
+<div id="toastRoot" class="toast-root" data-page-node-id="OjHI6CeG7XM6HxfzYTADjK"></div>
 
 <script src="/app.js"></script>
 </body>

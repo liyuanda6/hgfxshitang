@@ -167,6 +167,8 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
 .btn-warn { background: var(--warn-soft); border-color: #f0d3a3; color: #92600a; font-weight: 600; }
 .btn-warn:hover { background: #fdf0dc; }
+.btn-success { background: var(--success); border-color: var(--success); color: #fff; font-weight: 600; }
+.btn-success:hover { background: #047857; border-color: #047857; }
 .btn-ghost { background: #fff; }
 .btn-link {
   border: none; background: none; color: var(--primary); cursor: pointer;
@@ -243,6 +245,25 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .row-input.deduct { min-width: 84px; }
 .row-input.remark { min-width: 200px; }
 .saving { background: #fffbe8 !important; }
+
+/* 就餐登记页：备注 / 应扣除费用 高亮框（更醒目） */
+.hl-box {
+  border: 1.5px solid var(--border-strong);
+  border-radius: 9px; padding: 7px 9px; background: #fff;
+}
+.hl-box-title { font-size: 11.5px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
+.hl-remark { background: #fff8ec; border-color: #f0d3a3; min-width: 230px; }
+.hl-remark .hl-box-title { color: #92600a; }
+.hl-deduct { background: #fef2f2; border-color: #fecaca; min-width: 150px; }
+.hl-deduct .hl-box-title { color: #b91c1c; }
+.hl-box .row-input.remark { width: 100%; min-width: 0; border-color: var(--border-strong); background: #fff; text-align: left; font-weight: 400; }
+.hl-box-input { display: flex; align-items: center; gap: 5px; }
+.hl-box-input .row-input.deduct { flex: 1 1 auto; min-width: 0; width: auto; border-color: var(--border-strong); background: #fff; }
+.hl-box-input .unit { color: var(--text-3); font-size: 12px; flex: 0 0 auto; }
+
+/* 就餐登记页：行内操作按钮（姓名旁编辑 / 删除） */
+.reg-act { white-space: nowrap; text-align: center !important; }
+.reg-act .btn-link { margin: 0 1px; }
 
 .empty { padding: 40px 16px; text-align: center; color: var(--text-3); font-size: 13px; }
 .count-badge {
@@ -476,6 +497,10 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   .table tbody td.c-act::before { margin-right: auto; }
   .table tbody td.c-remark { display: flex; flex-wrap: wrap; }
   .table tbody td.c-remark::before { flex: 0 0 100%; }
+  .table tbody td.c-deduct { display: flex; flex-wrap: wrap; }
+  .table tbody td.c-deduct::before { flex: 0 0 100%; }
+  .hl-box { width: 100%; }
+  .hl-box-title { display: none; }
   /* 就餐登记表：天数已在页头显示，行内不再重复 */
   #regTable tbody td.c-days { display: none; }
 
