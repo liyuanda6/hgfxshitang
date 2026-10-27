@@ -526,6 +526,7 @@ export async function onRequest(context) {
       return jsonResponse({
         ok: true,
         settings: { breakfastPrice: money(state.settings.breakfastPrice), lunchPrice: money(state.settings.lunchPrice), statMonth: state.settings.statMonth || currentMonth() },
+        statMonth: state.settings.statMonth || currentMonth(),
         standards: MEAL_STANDARDS,
         defaultStandard: DEFAULT_STANDARD,
         classes: state.classes,

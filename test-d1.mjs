@@ -116,7 +116,9 @@ async function testD1() {
   let r = await call(env, 'GET', '/api/state');
   assert(r.status === 200 && r.data.classes.length === 27, '首启自动播种 27 个班 (实得 ' + (r.data ? r.data.classes.length : '?') + ')');
   assert(r.data.classes[0].name === '一年级1班' && r.data.classes[26].name === '六年级3班', '班级顺序/命名正确');
-  assert(r.data.currentMonth === '2026-09', 'currentMonth = 2026-09 (Asia/Shanghai)');
+  // currentMonth 应为「实时当月」，且格式合法（不再硬编码日期，避免跨月后断言失效）
+  const nowFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7);
+  assert(r.data.currentMonth === nowFmt, 'currentMonth = 实时当月 ' + nowFmt + ' (Asia/Shanghai)');
 
   // 密码校验
   r = await call(env, 'POST', '/api/verify', { password: 'admin' });
@@ -180,6 +182,11 @@ async function testD1() {
   assert(r.status === 403, '错误密码不能修改统计月份 (403)');
   r = await call(env, 'GET', '/api/state');
   assert(r.data.settings.statMonth === '2026-10', 'statMonth 已持久化=2026-10');
+  // 核心回归：顶层 statMonth 字段必须存在，且与手动设置值一致、独立于实时 currentMonth
+  assert(r.data.statMonth === '2026-10', '顶层 statMonth 字段存在且 = 手动设置值');
+  assert(r.data.statMonth === r.data.settings.statMonth, '顶层 statMonth 与 settings.statMonth 一致');
+  assert(r.data.statMonth !== r.data.currentMonth || r.data.currentMonth === '2026-10',
+    'statMonth 不与实时 currentMonth 耦合（若当月恰为 2026-10 则相等属正常）');
 
   // 重新加载（新 env 等价“新一次请求”读回持久化数据）
   const env2 = new MockD1();

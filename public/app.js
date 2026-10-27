@@ -1165,7 +1165,9 @@ function bindEvents() {
   try {
     const data = await api('/api/state');
     S = data;
-    MONTH = data.statMonth || data.currentMonth;
+    // 统计月份只取「手动设置的 statMonth」，绝不回退到实时 currentMonth；
+    // 这样每月一号不会自动切换月份，仅当从未设置过时用当前月兜底一次。
+    MONTH = data.statMonth || (data.settings && data.settings.statMonth) || data.currentMonth;
     $('#monthInput').value = MONTH;
     $('#footPort').textContent = location.port || (location.protocol === 'https:' ? '443' : '80');
     bindEvents();

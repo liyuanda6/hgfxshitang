@@ -532,9 +532,11 @@ const api = {};
 
 /** 全量状态（前端按月份自行过滤） */
 api['GET /api/state'] = function () {
+  const price = getPriceSettings();
   return {
     ok: true,
-    settings: getPriceSettings(),
+    settings: price,
+    statMonth: price.statMonth,
     standards: MEAL_STANDARDS,
     defaultStandard: DEFAULT_STANDARD,
     classes: state.classes,
